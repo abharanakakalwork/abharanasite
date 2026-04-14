@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, X } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Loader2 } from "lucide-react";
 import BookingFlow from "./components/BookingFlow";
 import OnlineClassCard from "./components/OnlineClassCard";
 import TrustSection from "./components/TrustSection";
@@ -10,18 +10,51 @@ import { yogaService } from "@/lib/api/client";
 import { Offering } from "./components/flow/types";
 import { toast } from "react-toastify";
 
+const CATEGORIES = ["All", "Yoga", "Meditation", "Sound Healing"] as const;
+type Category = (typeof CATEGORIES)[number];
+
+const SORT_OPTIONS = [
+  "Recommended",
+  "Price: Low to High",
+  "Price: High to Low",
+  "Duration",
+] as const;
+type SortOption = (typeof SORT_OPTIONS)[number];
+
+function categorise(offering: Offering): Category {
+  const t = offering.title.toLowerCase();
+  if (t.includes("sound") || t.includes("singing")) return "Sound Healing";
+  if (t.includes("meditat") || t.includes("mantra") || t.includes("breathwork"))
+    return "Meditation";
+  if (
+    t.includes("yoga") ||
+    t.includes("hatha") ||
+    t.includes("vinyasa") ||
+    t.includes("yin") ||
+    t.includes("feminine") ||
+    t.includes("restorat")
+  )
+    return "Yoga";
+  return "Yoga"; // sensible default
+}
+
 export default function OnlineClassesPage() {
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
+  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(
+    null,
+  );
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
+  const [sortBy, setSortBy] = useState<SortOption>("Recommended");
+  const [sortOpen, setSortOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await yogaService.offerings.list();
         setOfferings(res.data.data);
-      } catch (err) {
+      } catch {
         toast.error("Failed to load offerings");
       } finally {
         setLoading(false);
@@ -30,123 +63,206 @@ export default function OnlineClassesPage() {
     load();
   }, []);
 
+  const displayed = useMemo(() => {
+    let list = [...offerings];
+    if (activeCategory !== "All") {
+      list = list.filter((o) => categorise(o) === activeCategory);
+    }
+    if (sortBy === "Price: Low to High")
+      list.sort((a, b) => a.single_price - b.single_price);
+    if (sortBy === "Price: High to Low")
+      list.sort((a, b) => b.single_price - a.single_price);
+    if (sortBy === "Duration")
+      list.sort((a, b) => {
+        const mins = (s: string) => parseInt(s) || 60;
+        return mins(a.duration) - mins(b.duration);
+      });
+    return list;
+  }, [offerings, activeCategory, sortBy]);
+
   const handleBook = (offering: Offering) => {
     setSelectedOffering(offering);
     setIsBookingOpen(true);
-    // Remove scroll lock as we are now in the same area (stage system)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const closeBooking = () => {
     setIsBookingOpen(false);
     setSelectedOffering(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <main className="relative min-h-screen text-[#4a3b32] bg-[#fffdf8] overflow-x-hidden pt-[70px]">
-      {/* Premium Sanctuary Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[#f1e4da]/20 mix-blend-overlay"></div>
-        
-        {/* Animated Sanctuary Blobs */}
-        <motion.div 
-          
-          className="absolute -top-1/4 -right-1/4 w-full h-full bg-[#bc6746]/5 rounded-full blur-[140px]"
-        />
-        <motion.div 
-          className="absolute -bottom-1/4 -left-1/4 w-full h-full bg-[#a55a3d]/5 rounded-full blur-[160px]"
-        />
-      </div>
+    <main className="relative min-h-screen text-[#2d2420] bg-[#f5ece5] overflow-x-hidden pt-[70px]">
+      {/* Subtle texture overlay */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cfilter%20id%3D%22n%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%221%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%23n)%22%20opacity%3D%220.12%22%2F%3E%3C%2Fsvg%3E')]" />
 
       <AnimatePresence mode="wait">
         {!isBookingOpen ? (
-          <motion.div 
+          <motion.div
             key="grid-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="relative z-10"
           >
-            {/* Hero Section */}
-            <section className="pt-20 pb-16 px-6 overflow-hidden">
-               <div className="max-w-4xl mx-auto text-center space-y-6">
-                  <motion.span 
-                    className="text-xs uppercase tracking-[0.4em] text-[#bc6746] font-bold block"
-                  >
-                    Digital Sanctuary
-                  </motion.span>
-                  <motion.h1 
-                    className="text-5xl md:text-8xl font-serif leading-[0.9] text-[#4a3b32] uppercase italic tracking-tighter"
-                  >
-                    Sacred Online <br /> Flows
-                  </motion.h1>
-                  <motion.p 
-                    
-                    className="text-lg md:text-xl font-light text-[#a55a3d]/70 max-w-2xl mx-auto leading-relaxed"
-                  >
-                    Bridge the distance. Bring the sanctuary into your sacred space with guided movements, deep stillness, and intentional breath.
-                  </motion.p>
-                  
-                  <motion.div 
-                   
-                    className="w-24 h-px bg-[#bc6746]/30 mx-auto mt-12 origin-center"
-                  />
-               </div>
+            {/* ── Hero ── */}
+            <section className="pt-14 pb-10 px-6 text-center">
+              <motion.h1
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55 }}
+                className="text-4xl md:text-5xl font-serif font-semibold text-[#2d2420] leading-tight"
+              >
+                Book Your Wellness Session
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.1 }}
+                className="mt-3 text-[15px] text-[#7a6a62] font-light"
+              >
+                Guided movements, deep stillness, and intentional breath.
+              </motion.p>
             </section>
 
-            {/* Class Grid Section */}
-            <section className="px-6 pb-32">
-              <div className="max-w-7xl mx-auto w-full">
+            {/* ── Filters & Sort ── */}
+            <section className="px-6 pb-8">
+              <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+                {/* Category pills */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`px-5 py-2 rounded-full text-[13px] font-medium border transition-all duration-200 ${
+                        activeCategory === cat
+                          ? "bg-[#bc6746] text-white border-[#bc6746] shadow-sm"
+                          : "bg-white/70 text-[#4a3b32] border-[#d9cbc4] hover:border-[#bc6746] hover:text-[#bc6746]"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Sort dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setSortOpen((v) => !v)}
+                    className="flex items-center gap-2 text-[13px] text-[#4a3b32] font-medium"
+                  >
+                    <span className="text-[#7a6a62]">Sort by</span>
+                    <span className="font-semibold">{sortBy}</span>
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-200 ${sortOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {sortOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-8 z-50 bg-white rounded-xl shadow-xl border border-[#e8ddd5] overflow-hidden w-52"
+                      >
+                        {SORT_OPTIONS.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => {
+                              setSortBy(opt);
+                              setSortOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#f5ece5] transition-colors ${
+                              sortBy === opt
+                                ? "text-[#bc6746] font-semibold"
+                                : "text-[#4a3b32]"
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </section>
+
+            {/* ── Cards Grid ── */}
+            <section className="px-6 pb-24">
+              <div className="max-w-6xl mx-auto">
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-32 text-[#bc6746]">
-                     <Loader2 className="animate-spin h-8 w-8 mb-4" />
-                     <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Tuning In...</p>
+                    <Loader2 className="animate-spin h-8 w-8 mb-4" />
+                    <p className="text-[11px] font-bold uppercase tracking-widest opacity-50">
+                      Loading...
+                    </p>
+                  </div>
+                ) : displayed.length === 0 ? (
+                  <div className="text-center py-24 text-[#7a6a62]">
+                    <p className="text-lg font-serif">
+                      No sessions in this category yet.
+                    </p>
                   </div>
                 ) : (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-                      {offerings.map((offering, idx) => (
-                        <OnlineClassCard 
-                          key={offering.id} 
-                          offering={offering} 
-                          onBook={handleBook}
-                          index={idx}
-                        />
-                      ))}
-                    </div>
-                    
-                    <div className="mt-32">
-                       <TrustSection />
-                    </div>
-                  </>
+                  <motion.div
+                    layout
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+                  >
+                    {displayed.map((offering, idx) => (
+                      <OnlineClassCard
+                        key={offering.id}
+                        offering={offering}
+                        onBook={handleBook}
+                        index={idx}
+                        isLive={
+                          offering.title.toLowerCase().includes("sound") ||
+                          offering.title.toLowerCase().includes("live")
+                        }
+                      />
+                    ))}
+                  </motion.div>
+                )}
+
+                {/* Trust section */}
+                {!loading && displayed.length > 0 && (
+                  <div className="mt-24">
+                    <TrustSection />
+                  </div>
                 )}
               </div>
             </section>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="booking-view"
-            
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="relative z-10 py-12 px-6"
           >
             <div className="max-w-6xl mx-auto">
-               <BookingFlow 
-                  initialOffering={selectedOffering} 
-                  onClose={closeBooking}
-               />
+              <BookingFlow
+                initialOffering={selectedOffering}
+                onClose={closeBooking}
+              />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Fixed Branding Elements */}
-      <div className="hidden md:block fixed bottom-8 left-0 w-full z-20 pointer-events-none">
-          <div className="max-w-7xl mx-auto px-4 flex justify-between items-center opacity-40">
-             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#bc6746]">Sanctuary Direct Verification © 2024</p>
-             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[#bc6746]">Premium Wellness Collective</p>
-          </div>
-      </div>
-      
-      {/* Decorative Gradient */}
-      <div className="fixed bottom-0 left-0 w-full h-64 bg-gradient-to-t from-[#bc6746]/5 to-transparent pointer-events-none z-0" />
+      {/* Close sort dropdown on outside click */}
+      {sortOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setSortOpen(false)}
+        />
+      )}
     </main>
   );
 }

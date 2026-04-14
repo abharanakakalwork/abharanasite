@@ -3,78 +3,117 @@
 import React from "react";
 import { motion } from "motion/react";
 import Image from "next/image";
-import { Clock, IndianRupee, ArrowRight } from "lucide-react";
+import { Clock, Radio, ArrowRight } from "lucide-react";
 import { Offering } from "./flow/types";
-import { cn } from "@/lib/utils";
 
 const imageMap: Record<string, string> = {
-  "Hatha": "/exp-yoga.png",
-  "Vinyasa": "/exp-yoga.png",
-  "Breathwork": "/exp-breathwork.png",
-  "Sound": "/exp-sound.png",
-  "Meditation": "/sh-guided.webp",
-  "Deep": "/sh-intro-vessels.png",
-  "Sacred": "/exp-nature.png",
-  "Yin": "/about-journey-mood.png",
+  Hatha: "/exp-yoga.png",
+  Vinyasa: "/exp-yoga.png",
+  Breathwork: "/exp-breathwork.png",
+  Sound: "/exp-sound.png",
+  Meditation: "/sh-guided.webp",
+  Deep: "/sh-intro-vessels.png",
+  Sacred: "/exp-nature.png",
+  Yin: "/about-journey-mood.png",
+  Feminine: "/exp-yoga.png",
+  Mantra: "/sh-guided.webp",
 };
 
 interface OnlineClassCardProps {
   offering: Offering;
   onBook: (offering: Offering) => void;
   index: number;
+  slotsLeft?: number;
+  isLive?: boolean;
 }
 
-export default function OnlineClassCard({ offering, onBook, index }: OnlineClassCardProps) {
-  // Use uploaded image, or mapping, or fallback to a general yoga image
-  const imageSrc = offering.image_url || Object.entries(imageMap).find(([key]) => offering.title.includes(key))?.[1] || "/exp-yoga.png";
+export default function OnlineClassCard({
+  offering,
+  onBook,
+  index,
+  slotsLeft,
+  isLive,
+}: OnlineClassCardProps) {
+  const imageSrc =
+    offering.image_url ||
+    Object.entries(imageMap).find(([key]) =>
+      offering.title.includes(key),
+    )?.[1] ||
+    "/exp-yoga.png";
 
   return (
     <motion.div
-      
-      className="group bg-white rounded-[40px] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-700 border border-[#f1e4da]/50 flex flex-col h-[520px]"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: index * 0.07, ease: "easeOut" }}
+      className="group bg-white rounded-2xl  overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-500 border border-[#e8ddd5] flex flex-col"
     >
-      {/* Image Section */}
-      <div className="relative h-[45%] overflow-hidden">
+      {/* ── Image ── */}
+      <div className="relative h-[200px] overflow-hidden">
         <Image
           src={imageSrc}
           alt={offering.title}
           fill
-          className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:bg-transparent transition-colors duration-700" />
-        
-        {/* Floating Duration Tag */}
-        <div className="absolute bottom-4 left-6 soft-glass px-4 py-1.5 rounded-full flex items-center gap-2">
-            <Clock size={12} className="text-[#bc6746]" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]">{offering.duration}</span>
+
+        {/* Top-left: slots badge */}
+        {slotsLeft !== undefined && (
+          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#4a3b32] text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm">
+            {slotsLeft} slots left
+          </div>
+        )}
+
+        {/* Top-left: Live Session badge (if live) */}
+        {isLive && !slotsLeft && (
+          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#4a3b32] text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+            <Radio size={10} className="text-[#bc6746]" />
+            Live Session
+          </div>
+        )}
+
+        {/* Bottom-left: duration badge */}
+        <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm text-[#4a3b32] text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+          <Clock size={10} className="text-[#6b8c6e]" />
+          {offering.duration}
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="flex-1 p-8 flex flex-col justify-between bg-[#FFFDF8] paper-grain">
-        <div>
-          <div className="flex justify-between items-start mb-4">
-             <h3 className="text-2xl md:text-3xl font-serif text-[#4a3b32] leading-tight tracking-tight group-hover:text-[#bc6746] transition-colors duration-500">
-               {offering.title}
-             </h3>
-             <div className="flex items-center text-[#bc6746] font-serif text-xl">
-                <IndianRupee size={16} strokeWidth={3} className="mr-0.5" />
-                <span>{offering.single_price}</span>
-             </div>
-          </div>
-          
-          <p className="text-[#4a3b32]/70 text-sm leading-relaxed line-clamp-3 font-light">
-             {offering.description}
-          </p>
+      {/* ── Content ── */}
+      <div className="flex-1 p-5 pb-2 flex flex-col gap-3">
+        {/* Title + Price */}
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-[17px] font-semibold text-[#2d2420] leading-snug group-hover:text-[#bc6746] transition-colors duration-300">
+            {offering.title}
+          </h3>
+          <span className="text-[#bc6746] font-semibold text-[15px] whitespace-nowrap">
+            ₹{offering.single_price}
+          </span>
         </div>
 
-        {/* CTA Area */}
+        {/* Description */}
+        <p className="text-[#7a6a62] text-[13px] leading-relaxed line-clamp-2">
+          {offering.description}
+        </p>
+
+        {/* Divider */}
+        <div className="border-t border-[#ede3dc]" />
+
+        {/* Duration row */}
+        <div className="flex items-center gap-1.5 text-[#7a6a62] text-[13px]">
+          <Clock size={13} className="shrink-0 text-[#6b8c6e]" />
+          <span>{offering.duration}</span>
+        </div>
+
+        {/* Book Now CTA */}
+      </div>
+      <div className="px-5 pb-5">
         <button
           onClick={() => onBook(offering)}
-          className="w-full mt-6 py-4 rounded-full bg-[#4a3b32] text-white text-[10px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 hover:bg-[#bc6746] transition-all duration-500 shadow-xl shadow-[#bc6746]/10 hover:shadow-[#bc6746]/30 group/btn"
+          className="mt-1  w-full py-3 rounded-xl bg-[#bc6746] text-white text-[13px] font-semibold flex items-center justify-center gap-2 hover:bg-[#4a6250] active:scale-[0.98] transition-all duration-300"
         >
           Book Now
-          <ArrowRight size={14} className="transition-transform duration-500 group-hover/btn:translate-x-2" />
+          <ArrowRight size={14} />
         </button>
       </div>
     </motion.div>
