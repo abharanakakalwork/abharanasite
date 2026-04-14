@@ -149,7 +149,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_signature: response.razorpay_signature,
                     bookingData: {
-                        booking_type: offering.type === 'retreat' ? 'retreat' : 'yoga',
+                        booking_type: (offering.type as any) || 'yoga',
                         reference_id: offering.id,
                         user_name: userData.name,
                         user_email: userData.email,

@@ -12,6 +12,7 @@ export interface Offering {
   payee_name?: string;
   qr_image_url?: string;
   instructions?: string;
+  type?: string;
 }
 
 export interface Session {

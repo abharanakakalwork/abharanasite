@@ -249,7 +249,8 @@ export default function ImmersionBookingFlow({ itemData }: ImmersionBookingFlowP
                         upi_id: itemData.upi_id,
                         payee_name: itemData.payee_name,
                         qr_image_url: itemData.qr_image_url,
-                        instructions: itemData.instructions
+                        instructions: itemData.instructions,
+                        type: 'retreat'
                     } as any}
                     session={null}
                     bookingMode="single"

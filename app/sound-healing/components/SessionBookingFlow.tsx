@@ -250,7 +250,8 @@ export default function SessionBookingFlow({ itemData }: SessionBookingFlowProps
                         upi_id: itemData.upi_id,
                         payee_name: itemData.payee_name,
                         qr_image_url: itemData.qr_image_url,
-                        instructions: itemData.instructions
+                        instructions: itemData.instructions,
+                        type: 'upcoming'
                     } as any}
                     session={null}
                     bookingMode="single"
