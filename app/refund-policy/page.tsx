@@ -1,7 +1,10 @@
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import DynamicPageClient from "@/app/components/DynamicPageClient";
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
+
   return { title: 'Refund Policy | Abharana Kakal' };
 }
 

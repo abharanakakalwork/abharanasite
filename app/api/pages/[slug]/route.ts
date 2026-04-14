@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { withAuth } from '@/lib/with-auth';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -27,16 +28,21 @@ async function patchHandler(req: NextRequest, { params }: { params: Promise<{ sl
 
     const { data, error } = await supabaseAdmin
       .from('pages')
-      .update({
+      .upsert({
+        slug: slug, // Required for onConflict
         title: body.title,
         content: body.content,
         updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'slug'
       })
-      .eq('slug', slug)
       .select()
       .single();
 
     if (error) throw error;
+
+    // Revalidate the client-side page
+    revalidatePath(`/${slug}`);
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
@@ -45,3 +51,4 @@ async function patchHandler(req: NextRequest, { params }: { params: Promise<{ sl
 }
 
 export const PATCH = withAuth(patchHandler as any);
+
