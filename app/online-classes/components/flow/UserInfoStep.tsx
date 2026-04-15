@@ -18,16 +18,16 @@ import { Offering, Session, UserData } from "./types";
 import { formatDateLocal, formatTime12h } from "@/lib/utils";
 
 const imageMap: Record<string, string> = {
-  Hatha: "/exp-yoga.png",
-  Vinyasa: "/exp-yoga.png",
-  Breathwork: "/exp-breathwork.png",
-  Sound: "/exp-sound.png",
-  Meditation: "/sh-guided.webp",
-  Deep: "/sh-intro-vessels.png",
-  Sacred: "/exp-nature.png",
-  Yin: "/about-journey-mood.png",
-  Feminine: "/exp-yoga.png",
-  Mantra: "/sh-guided.webp",
+  Hatha: "https://abharanakakal.b-cdn.net/assets/exp-yoga.png",
+  Vinyasa: "https://abharanakakal.b-cdn.net/assets/exp-yoga.png",
+  Breathwork: "https://abharanakakal.b-cdn.net/assets/exp-breathwork.png",
+  Sound: "https://abharanakakal.b-cdn.net/assets/exp-sound.png",
+  Meditation: "https://abharanakakal.b-cdn.net/assets/sh-guided.webp",
+  Deep: "https://abharanakakal.b-cdn.net/assets/sh-intro-vessels.png",
+  Sacred: "https://abharanakakal.b-cdn.net/assets/exp-nature.png",
+  Yin: "https://abharanakakal.b-cdn.net/assets/about-journey-mood.png",
+  Feminine: "https://abharanakakal.b-cdn.net/assets/exp-yoga.png",
+  Mantra: "https://abharanakakal.b-cdn.net/assets/sh-guided.webp",
 };
 
 interface UserInfoStepProps {
@@ -54,7 +54,7 @@ export default function UserInfoStep({
   const imageSrc =
     offering.image_url ||
     Object.entries(imageMap).find(([k]) => offering.title?.includes(k))?.[1] ||
-    "/exp-yoga.png";
+    "https://abharanakakal.b-cdn.net/assets/exp-yoga.png";
 
   return (
     <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto items-start">

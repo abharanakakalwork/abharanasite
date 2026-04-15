@@ -4,9 +4,9 @@ import BlogGrid from "./components/BlogGrid";
 import WithinCTA from "./components/WithinCTA";
 
 export const metadata = {
-  title: "Within | Abharana Kakal",
+  title: "From Within | Yoga & Mindfulness Blog by Abharana Kakal",
   description:
-    "Reflections on yoga, feminine awareness, and inner presence from Abharana Kakal. Stories, practices, and wisdom for the journey inward.",
+    "Explore “From Within,” a yoga and mindfulness blog by Abharana Kakal. Discover insights on meditation, spiritual growth, feminine awakening, and holistic wellness.",
 };
 
 export default function WithinPage() {
@@ -15,7 +15,7 @@ export default function WithinPage() {
       {/* Background Image — same as retreats */}
       <div className="fixed inset-0 z-[-2] pointer-events-none">
         <Image
-          src="/wellness-practices-self-care-world-health-day.webp"
+          src="https://abharanakakal.b-cdn.net/assets/wellness-practices-self-care-world-health-day.webp"
           alt="Soft nature background"
           fill
           priority

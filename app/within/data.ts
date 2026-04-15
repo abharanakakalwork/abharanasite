@@ -24,7 +24,7 @@ export const blogPosts: BlogPost[] = [
       "When we learn to listen deeply, the body becomes our greatest teacher — whispering truths our mind has long overlooked.",
     date: "March 18, 2026",
     category: "Yoga",
-    image: "/within-yoga.png",
+    image: "https://abharanakakal.b-cdn.net/assets/within-yoga.png",
     readTime: "5 min read",
     content: {
       intro:
@@ -56,7 +56,7 @@ export const blogPosts: BlogPost[] = [
       "Sound is the oldest medicine. Before language, before thought, there was vibration — and it remembered the way home.",
     date: "March 5, 2026",
     category: "Sound Healing",
-    image: "/within-sound.png",
+    image: "https://abharanakakal.b-cdn.net/assets/within-sound.png",
     readTime: "6 min read",
     content: {
       intro:
@@ -88,7 +88,7 @@ export const blogPosts: BlogPost[] = [
       "We were not built to be efficient. We were built to be cyclical, intuitive, soft, and wild all at once.",
     date: "February 20, 2026",
     category: "Feminine Energy",
-    image: "/within-feminine.png",
+    image: "https://abharanakakal.b-cdn.net/assets/within-feminine.png",
     readTime: "7 min read",
     content: {
       intro:
@@ -120,7 +120,7 @@ export const blogPosts: BlogPost[] = [
       "Twelve women. Seven days. One island. What happened in that sacred container will stay with us forever.",
     date: "February 8, 2026",
     category: "Retreats",
-    image: "/within-retreat.png",
+    image: "https://abharanakakal.b-cdn.net/assets/within-retreat.png",
     readTime: "8 min read",
     content: {
       intro:
@@ -152,7 +152,7 @@ export const blogPosts: BlogPost[] = [
       "The first hour of the morning is a conversation with your own soul. What are you saying?",
     date: "January 25, 2026",
     category: "Yoga",
-    image: "/within-inner.png",
+    image: "https://abharanakakal.b-cdn.net/assets/within-inner.png",
     readTime: "4 min read",
     content: {
       intro:
@@ -184,7 +184,7 @@ export const blogPosts: BlogPost[] = [
       "She waxes, she wanes, she disappears — and then, faithfully, she returns. The moon has much to teach us about trusting the dark.",
     date: "January 10, 2026",
     category: "Feminine Energy",
-    image: "/within-moon.png",
+    image: "https://abharanakakal.b-cdn.net/assets/within-moon.png",
     readTime: "5 min read",
     content: {
       intro:

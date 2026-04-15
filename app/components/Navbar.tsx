@@ -92,7 +92,7 @@ export default function Navbar() {
               className="flex items-center transition-transform hover:scale-105 duration-500"
             >
               <img
-                src={scrolled ? "/logo-brown-01.svg" : "/logo-white-02.svg"}
+                src={scrolled ? "https://abharanakakal.b-cdn.net/assets/logo-brown-01.svg" : "https://abharanakakal.b-cdn.net/assets/logo-white-02.svg"}
                 alt="Abharana Kakal Logo"
                 className="h-8 sm:h-10 md:h-12 w-75 object-contain transition-all duration-700"
               />

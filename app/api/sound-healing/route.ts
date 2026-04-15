@@ -44,6 +44,7 @@ async function postHandler(req: NextRequest, { admin }: any) {
       const frequency = formData.get('frequency') as string;
       const duration = formData.get('duration') as string;
       const color = formData.get('color') as string;
+      const category = (formData.get('category') as string)?.toUpperCase();
 
       let audioUrl = formData.get('audio_url') as string;
       let imageUrl = formData.get('image_url') as string;
@@ -69,7 +70,8 @@ async function postHandler(req: NextRequest, { admin }: any) {
           intent,
           frequency,
           duration,
-          color
+          color,
+          category
         })
         .select()
         .single();
@@ -80,6 +82,7 @@ async function postHandler(req: NextRequest, { admin }: any) {
     } else {
       // Standard JSON insert
       const body = await req.json();
+      if (body.category) body.category = body.category.toUpperCase();
       const { data: session, error } = await supabaseAdmin
         .from('sound_healing')
         .insert(body)

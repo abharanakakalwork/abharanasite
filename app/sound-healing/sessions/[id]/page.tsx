@@ -84,7 +84,7 @@ export default function SessionDetailPage({
       <section className="relative h-[70vh] w-full overflow-hidden">
         <motion.div className="absolute inset-0 z-0">
           <Image
-            src={session.image_url || "/other-page-bg.jpeg"}
+            src={session.image_url || "https://abharanakakal.b-cdn.net/assets/other-page-bg.jpeg"}
             alt={session.title}
             fill
             priority

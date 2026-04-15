@@ -24,7 +24,7 @@ export default function IntroSection() {
             className="relative aspect-[3/4] md:aspect-[4/5] rounded-tr-[120px] md:rounded-tr-[240px] rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_30px_90px_rgba(188,103,70,0.15)] z-20 border border-white/20"
           >
             <Image
-              src="/retreat.webp"
+              src="https://abharanakakal.b-cdn.net/assets/retreat.webp"
               alt="Serene sacred space"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"

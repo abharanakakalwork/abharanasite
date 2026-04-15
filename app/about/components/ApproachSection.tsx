@@ -14,7 +14,7 @@ export default function ApproachSection() {
       {/* Full-Bleed Macro Background */}
       <motion.div  className="absolute inset-0 z-0">
         <Image
-          src="/about-approach-macro.png"
+          src="https://abharanakakal.b-cdn.net/assets/about-approach-macro.png"
           alt="Macro Stillness"
           fill
           className="object-cover opacity-60 md:opacity-80"

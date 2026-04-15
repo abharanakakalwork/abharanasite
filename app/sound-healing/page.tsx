@@ -9,9 +9,9 @@ import FinalCTA from "./components/FinalCTA";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sound Healing | Abharana Kakal",
+  title: "Sound Healing Sessions | Abharana Kakal",
   description:
-    "Experience live sound healing sessions in Bangalore & Mysore — Tibetan bowls, crystal bowls, gong baths, and guided meditation with Abharana Kakal.",
+    "Experience deep relaxation through sound healing sessions with Abharana Kakal. Join online or in Mysore and Bangalore for guided meditation and inner balance.",
 };
 
 export default function SoundHealingPage() {
@@ -20,7 +20,7 @@ export default function SoundHealingPage() {
       {/* Global Background Image — same as retreats page */}
       <div className="fixed inset-0 z-[-2] pointer-events-none">
         <Image
-          src="/tibetan-singing-bowl.webp"
+          src="https://abharanakakal.b-cdn.net/assets/tibetan-singing-bowl.webp"
           alt="Sound Healing Background"
           fill
           priority

@@ -24,12 +24,12 @@ async function patchHandler(req: NextRequest, { params, admin }: any) {
       const updates: any = {};
 
       // Explicitly pick allowed fields to avoid schema errors (like 'image' column missing)
-      const fields = ['title', 'description', 'intent', 'frequency', 'duration', 'color', 'audio_url', 'image_url'];
+      const fields = ['title', 'description', 'intent', 'frequency', 'duration', 'color', 'category', 'audio_url', 'image_url'];
       
       fields.forEach(field => {
         const value = formData.get(field);
         if (value !== null) {
-          updates[field] = value as string;
+          updates[field] = field === 'category' ? (value as string).toUpperCase() : value as string;
         }
       });
 
@@ -66,6 +66,7 @@ async function patchHandler(req: NextRequest, { params, admin }: any) {
     } else {
       // Standard JSON update
       const body = await req.json();
+      if (body.category) body.category = body.category.toUpperCase();
       const { data: session, error } = await supabaseAdmin
         .from('sound_healing')
         .update(body)

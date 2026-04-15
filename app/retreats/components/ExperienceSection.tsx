@@ -9,7 +9,7 @@ const experiences = [
     icon: <HandHeart strokeWidth={1} size={32} />,
     title: "Yoga",
     desc: "Embodied movement to release and restore.",
-    img: "/exp-yoga.png",
+    img: "https://abharanakakal.b-cdn.net/assets/exp-yoga.png",
     size: "md:col-span-1 md:row-span-2", // Vertical Tall
   },
   {
@@ -17,7 +17,7 @@ const experiences = [
     icon: <CloudRain strokeWidth={1} size={32} />,
     title: "Pranayama",
     desc: "Harnessing prana for deep inner alignment.",
-    img: "/exp-breathwork.png",
+    img: "https://abharanakakal.b-cdn.net/assets/exp-breathwork.png",
     size: "md:col-span-1 md:row-span-1", // Square
   },
   {
@@ -25,7 +25,7 @@ const experiences = [
     icon: <Sparkles strokeWidth={1} size={32} />,
     title: "Sound Healing",
     desc: "Vibrational medicine for cellular clearing.",
-    img: "/exp-sound.png",
+    img: "https://abharanakakal.b-cdn.net/assets/exp-sound.png",
     size: "md:col-span-2 md:row-span-1", // Horizontal Wide
   },
   {
@@ -33,7 +33,7 @@ const experiences = [
     icon: <Flower2 strokeWidth={1} size={32} />,
     title: "Feminine Circles",
     desc: "Sacred space to share, heal, and connect.",
-    img: "/exp-circle.png",
+    img: "https://abharanakakal.b-cdn.net/assets/exp-circle.png",
     size: "md:col-span-1 md:row-span-1", // Square
   },
   {
@@ -41,7 +41,7 @@ const experiences = [
     icon: <Waves strokeWidth={1} size={32} />,
     title: "Nature",
     desc: "Grounding roots into the wild earth.",
-    img: "/exp-nature.png",
+    img: "https://abharanakakal.b-cdn.net/assets/exp-nature.png",
     size: "md:col-span-1 md:row-span-1", // Square
   },
 ];

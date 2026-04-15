@@ -67,7 +67,7 @@ export default function IntroSection() {
             className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden rounded-t-[200px] rounded-b-[40px] shadow-2xl"
           >
             <Image
-              src="/soundhealing.webp"
+              src="https://abharanakakal.b-cdn.net/assets/soundhealing.webp"
               alt="Ancient Tibetan Singing Bowls"
               fill
               className="object-cover"

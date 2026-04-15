@@ -83,7 +83,7 @@ export default function ContactForm() {
   return (
     <section
       ref={containerRef}
-      style={{ position: 'relative' }}
+      style={{ position: "relative" }}
       className="py-24 md:py-20 px-6 overflow-hidden bg-[#fffdf8] paper-grain"
     >
       {/* Large background watermark */}
@@ -122,7 +122,9 @@ export default function ContactForm() {
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Your Name"
                   className="w-full px-8 py-4 rounded-full bg-white/50 border border-[#f1e4da] text-[#4a3b32] placeholder-[#4a3b32]/30 focus:outline-none focus:border-[#bc6746] hover:border-[#bc6746]/40 transition-all text-base font-light"
                 />
@@ -130,7 +132,9 @@ export default function ContactForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className={`text-[10px] uppercase tracking-[0.3em] font-bold pl-4 ${errors.email ? 'text-red-500' : 'text-[#bc6746]/60'}`}>
+                  <label
+                    className={`text-[10px] uppercase tracking-[0.3em] font-bold pl-4 ${errors.email ? "text-red-500" : "text-[#bc6746]/60"}`}
+                  >
                     Email {errors.email && "- Invalid Format"}
                   </label>
                   <input
@@ -138,33 +142,43 @@ export default function ContactForm() {
                     required
                     value={formData.email}
                     onChange={(e) => {
-                        setFormData({ ...formData, email: e.target.value });
-                        if (errors.email) setErrors({ ...errors, email: false });
+                      setFormData({ ...formData, email: e.target.value });
+                      if (errors.email) setErrors({ ...errors, email: false });
                     }}
-                    onBlur={() => setErrors(prev => ({ ...prev, email: !validateEmail(formData.email) }))}
+                    onBlur={() =>
+                      setErrors((prev) => ({
+                        ...prev,
+                        email: !validateEmail(formData.email),
+                      }))
+                    }
                     placeholder="hello@domain.com"
-                    className={`w-full px-8 py-4 rounded-full bg-white/50 border ${errors.email ? 'border-red-500 focus:border-red-600' : 'border-[#f1e4da] focus:border-[#bc6746]'} text-[#4a3b32] placeholder-[#4a3b32]/30 focus:outline-none hover:border-[#bc6746]/40 transition-all text-base font-light`}
+                    className={`w-full px-8 py-4 rounded-full bg-white/50 border ${errors.email ? "border-red-500 focus:border-red-600" : "border-[#f1e4da] focus:border-[#bc6746]"} text-[#4a3b32] placeholder-[#4a3b32]/30 focus:outline-none hover:border-[#bc6746]/40 transition-all text-base font-light`}
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className={`text-[10px] uppercase tracking-[0.3em] font-bold pl-4 ${errors.phone ? 'text-red-500' : 'text-[#bc6746]/60'}`}>
+                  <label
+                    className={`text-[10px] uppercase tracking-[0.3em] font-bold pl-4 ${errors.phone ? "text-red-500" : "text-[#bc6746]/60"}`}
+                  >
                     Phone {errors.phone && "- Invalid"}
                   </label>
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => {
-                        setFormData({ ...formData, phone: e.target.value });
-                        if (errors.phone) setErrors({ ...errors, phone: false });
+                      setFormData({ ...formData, phone: e.target.value });
+                      if (errors.phone) setErrors({ ...errors, phone: false });
                     }}
                     onBlur={() => {
-                        if (formData.phone) {
-                            setErrors(prev => ({ ...prev, phone: !validatePhone(formData.phone) }));
-                        }
+                      if (formData.phone) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          phone: !validatePhone(formData.phone),
+                        }));
+                      }
                     }}
                     placeholder="+91 00000 00000"
-                    className={`w-full px-8 py-4 rounded-full bg-white/50 border ${errors.phone ? 'border-red-500 focus:border-red-600' : 'border-[#f1e4da] focus:border-[#bc6746]'} text-[#4a3b32] placeholder-[#4a3b32]/30 focus:outline-none hover:border-[#bc6746]/40 transition-all text-base font-light`}
+                    className={`w-full px-8 py-4 rounded-full bg-white/50 border ${errors.phone ? "border-red-500 focus:border-red-600" : "border-[#f1e4da] focus:border-[#bc6746]"} text-[#4a3b32] placeholder-[#4a3b32]/30 focus:outline-none hover:border-[#bc6746]/40 transition-all text-base font-light`}
                   />
                 </div>
               </div>
@@ -176,13 +190,17 @@ export default function ContactForm() {
                 <div className="relative">
                   <select
                     value={formData.interest}
-                    onChange={(e) => setFormData({ ...formData, interest: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, interest: e.target.value })
+                    }
                     className="w-full px-8 py-4 rounded-full bg-white/50 border border-[#f1e4da] text-[#4a3b32] focus:outline-none focus:border-[#bc6746] hover:border-[#bc6746]/40 transition-all text-base font-light appearance-none italic cursor-pointer"
                   >
-                    <option>Yoga</option>
-                    <option>Sound Healing</option>
-                    <option>From Within</option>
-                    <option>Other</option>
+                    <option value={""}>Select Interest</option>
+                    <option value={"online-yoga-classes"}>Online Yoga Classes</option>
+                    <option value={"group-classes"}>Group Classes</option>
+                    <option value={"retreats"}>Retreats</option>
+                    <option value={"corporate-enquiry"}>Corporate Enquiry</option>
+                    <option value={"collaboration"}>Collaboration</option>
                   </select>
                   <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-[#bc6746]/60">
                     <svg
@@ -209,7 +227,9 @@ export default function ContactForm() {
                   rows={4}
                   required
                   value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, message: e.target.value })
+                  }
                   placeholder="How can I support your journey?"
                   className="w-full px-8 py-5 rounded-[30px] bg-white/50 border border-[#f1e4da] text-[#4a3b32] placeholder-[#4a3b32]/30 focus:outline-none focus:border-[#bc6746] hover:border-[#bc6746]/40 transition-all text-base font-light resize-none"
                 />
@@ -218,7 +238,7 @@ export default function ContactForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-5 rounded-full bg-[#bc6746] text-[#FFFDF8] uppercase tracking-[0.2em] text-xs font-semibold hover:bg-[#a55a3d] transition-all hover:shadow-[0_20px_40px_rgba(188,103,70,0.25)] flex items-center justify-center group ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className={`w-full py-5 rounded-full bg-[#bc6746] text-[#FFFDF8] uppercase tracking-[0.2em] text-xs font-semibold hover:bg-[#a55a3d] transition-all hover:shadow-[0_20px_40px_rgba(188,103,70,0.25)] flex items-center justify-center group ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
               >
                 {loading ? "Sending..." : "Send Message"}
                 {!loading && (
@@ -250,7 +270,7 @@ export default function ContactForm() {
             className="relative w-full h-[800px] rounded-[100px] overflow-hidden shadow-2xl border border-white/40"
           >
             <Image
-              src="/sh-retreat-intro.png"
+              src="https://abharanakakal.b-cdn.net/assets/sh-retreat-intro.png"
               alt="Sacred Forest"
               fill
               className="object-cover"
@@ -300,27 +320,6 @@ export default function ContactForm() {
                 </svg>
               ),
               link: "https://www.instagram.com/abharana_kakal/",
-            },
-            {
-              id: "legal",
-              label: "Legal Info",
-              value: "ABHARANA KAKAL",
-              sub: "GSTIN: [To be provided] | Sanctuary HQ: Bangalore",
-              icon: (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="30"
-                  height="30"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              ),
             },
           ].map((item, idx) => (
             <motion.div

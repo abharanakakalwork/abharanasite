@@ -12,8 +12,13 @@ import {
   Clock,
   CreditCard,
   Filter,
+  Loader2,
+  Mail,
+  MessageCircle,
+  Phone,
   RefreshCw,
   Search,
+  Send,
   Tag,
   User,
   X,
@@ -84,6 +89,12 @@ export default function BookingsAdmin() {
   const [previousBookings, setPreviousBookings] = useState<Booking[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  // Mail Modal State
+  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
+  const [mailSubject, setMailSubject] = useState('');
+  const [mailMessage, setMailMessage] = useState('');
+  const [sendingMail, setSendingMail] = useState(false);
+
   useEffect(() => {
     fetchBookings();
   }, [currentPage, pageSize, filterType, filterStatus]);
@@ -135,6 +146,58 @@ export default function BookingsAdmin() {
           console.error(e);
       } finally {
           setHistoryLoading(false);
+      }
+  };
+
+  const handleSendMail = async () => {
+      if (!selectedBooking) return;
+      if (!mailSubject || !mailMessage) {
+          toast.error('Subject and message are required');
+          return;
+      }
+
+      setSendingMail(true);
+      try {
+          const response = await fetch('/api/admin/send-mail', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  to: selectedBooking.user_email,
+                  toName: selectedBooking.user_name,
+                  subject: mailSubject,
+                  message: mailMessage
+              })
+          });
+
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Failed to send mail');
+
+          toast.success('Email sent successfully!');
+          setIsMailModalOpen(false);
+          setMailSubject('');
+          setMailMessage('');
+      } catch (e: any) {
+          toast.error(e.message);
+      } finally {
+          setSendingMail(false);
+      }
+  };
+
+  const applyTemplate = (type: 'meeting' | 'confirmation' | 'reschedule') => {
+      if (!selectedBooking) return;
+      const title = getBookingTitle(selectedBooking);
+      const date = getBookingDate(selectedBooking);
+      const time = selectedBooking.metadata?.time || 'TBD';
+
+      if (type === 'meeting') {
+          setMailSubject(`Meeting Link: ${title}`);
+          setMailMessage(`Namaste ${selectedBooking.user_name},\n\nHere is the link for your upcoming session "${title}" on ${date} at ${time}.\n\nZoom Link: [INSERT LINK HERE]\n\nLooking forward to seeing you!\n\nWarm regards,\nAbharana Kakal`);
+      } else if (type === 'confirmation') {
+          setMailSubject(`Booking Confirmed: ${title}`);
+          setMailMessage(`Namaste ${selectedBooking.user_name},\n\nYour booking for "${title}" on ${date} at ${time} has been confirmed.\n\nWe look forward to having you with us.\n\nBest regards,\nAbharana Kakal`);
+      } else if (type === 'reschedule') {
+          setMailSubject(`Reschedule Request: ${title}`);
+          setMailMessage(`Namaste ${selectedBooking.user_name},\n\nWe would like to reschedule your session for "${title}" scheduled for ${date}.\n\nPlease let us know your availability for an alternative time slot.\n\nThank you for your understanding.\n\nBest regards,\nAbharana Kakal`);
       }
   };
 
@@ -272,6 +335,9 @@ export default function BookingsAdmin() {
               <div className="flex max-w-[200px] flex-col">
                 <span className="truncate font-bold uppercase tracking-tight text-[#4a3b32]">{item.user_name}</span>
                 <span className="truncate text-[10px] lowercase tracking-wider text-[#bc6746] opacity-60">{item.user_email}</span>
+                {item.user_phone && (
+                  <span className="truncate text-[10px] tracking-wider text-[#a55a3d]/60">{item.user_phone}</span>
+                )}
               </div>
             ),
           },
@@ -381,14 +447,45 @@ export default function BookingsAdmin() {
               </div>
 
               <div data-lenis-prevent className="custom-scrollbar max-h-[75vh] space-y-6 overflow-y-auto p-8">
-                <div className="flex items-center space-x-4 rounded-3xl border border-[#f1e4da] bg-white p-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#bc6746]/10 text-[#bc6746]">
-                    <User className="h-6 w-6" />
+                <div className="flex items-center justify-between rounded-3xl border border-[#f1e4da] bg-white p-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#bc6746]/10 text-[#bc6746]">
+                      <User className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold uppercase text-[#4a3b32]">{selectedBooking.user_name}</h3>
+                      <p className="text-[10px] font-medium text-[#a55a3d]/60">{selectedBooking.user_email}</p>
+                      {selectedBooking.user_phone && (
+                        <p className="flex items-center gap-1 text-[10px] font-medium text-[#a55a3d]/60">
+                          <Phone className="h-2 w-2" /> {selectedBooking.user_phone}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold uppercase text-[#4a3b32]">{selectedBooking.user_name}</h3>
-                    <p className="text-[10px] font-medium text-[#a55a3d]/60">{selectedBooking.user_email}</p>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      {selectedBooking.user_phone && (
+                        <a
+                          href={`https://wa.me/${selectedBooking.user_phone.replace(/\D/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-2 rounded-xl bg-[#25D366]/10 px-4 py-2 text-[#25D366] transition-all hover:bg-[#25D366] hover:text-white"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          <span className="text-xs font-bold uppercase tracking-wider">WhatsApp</span>
+                        </a>
+                      )}
+                      <button
+                        onClick={() => {
+                          setMailSubject(`Regarding your booking: ${getBookingTitle(selectedBooking)}`);
+                          setMailMessage(`Namaste ${selectedBooking.user_name},\n\n`);
+                          setIsMailModalOpen(true);
+                        }}
+                        className="flex items-center space-x-2 rounded-xl bg-[#bc6746]/10 px-4 py-2 text-[#bc6746] transition-all hover:bg-[#bc6746] hover:text-white"
+                      >
+                        <Mail className="h-4 w-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Mail</span>
+                      </button>
+                    </div>
                 </div>
 
                 <div className="space-y-3 rounded-3xl border border-[#f1e4da] bg-white p-6">
@@ -498,6 +595,88 @@ export default function BookingsAdmin() {
           </div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {isMailModalOpen && selectedBooking && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="w-full max-w-lg overflow-hidden rounded-[32px] border border-[#f1e4da] bg-white shadow-2xl"
+            >
+              <div className="flex items-center justify-between border-b border-[#f1e4da] bg-[#bc6746]/5 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full bg-[#bc6746] p-2 text-white">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-[#4a3b32]">Send Email</h3>
+                    <p className="text-[10px] text-[#bc6746]">To: {selectedBooking.user_email}</p>
+                  </div>
+                </div>
+                <button onClick={() => setIsMailModalOpen(false)} className="rounded-full p-2 text-[#4a3b32]/40 hover:bg-[#bc6746]/10 hover:text-[#bc6746]">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4 p-6">
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => applyTemplate('confirmation')} className="rounded-full border border-[#bc6746]/20 px-3 py-1 text-[10px] font-bold text-[#bc6746] transition-colors hover:bg-[#bc6746] hover:text-white">
+                    Confirmation
+                  </button>
+                  <button onClick={() => applyTemplate('meeting')} className="rounded-full border border-[#bc6746]/20 px-3 py-1 text-[10px] font-bold text-[#bc6746] transition-colors hover:bg-[#bc6746] hover:text-white">
+                    Meeting Link
+                  </button>
+                  <button onClick={() => applyTemplate('reschedule')} className="rounded-full border border-[#bc6746]/20 px-3 py-1 text-[10px] font-bold text-[#bc6746] transition-colors hover:bg-[#bc6746] hover:text-white">
+                    Reschedule
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-1">Subject</label>
+                  <input
+                    type="text"
+                    value={mailSubject}
+                    onChange={(e) => setMailSubject(e.target.value)}
+                    placeholder="Enter email subject..."
+                    className="w-full rounded-2xl border-none bg-[#fdfaf8] px-4 py-3 text-sm text-[#4a3b32] ring-1 ring-[#bc6746]/10 focus:ring-2 focus:ring-[#bc6746]/30"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-1">Message</label>
+                  <textarea
+                    rows={8}
+                    value={mailMessage}
+                    onChange={(e) => setMailMessage(e.target.value)}
+                    placeholder="Type your message here..."
+                    className="w-full resize-none rounded-2xl border-none bg-[#fdfaf8] px-4 py-4 text-sm text-[#4a3b32] ring-1 ring-[#bc6746]/10 focus:ring-2 focus:ring-[#bc6746]/30"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setIsMailModalOpen(false)}
+                    className="flex-1 rounded-2xl border border-[#f1e4da] py-3 text-xs font-bold uppercase tracking-wider text-[#4a3b32]/60 transition-colors hover:bg-stone-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSendMail}
+                    disabled={sendingMail}
+                    className="flex flex-[2] items-center justify-center gap-2 rounded-2xl bg-[#bc6746] py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#bc6746]/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                  >
+                    {sendingMail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {sendingMail ? 'Sending...' : 'Send Email'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

@@ -40,7 +40,7 @@ export default function Home() {
 
         <div className="absolute inset-0 z-0 pointer-events-none  mix-blend-screen w-full h-screen">
           <Image
-            src="/bg-images.webp"
+            src="https://abharanakakal.b-cdn.net/assets/bg-images.webp"
             alt="Meditating figure"
             fill
             priority

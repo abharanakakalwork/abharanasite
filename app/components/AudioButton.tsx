@@ -54,7 +54,7 @@ export default function AudioButton({ scrolled }: { scrolled?: boolean }) {
 
   return (
     <>
-      <audio ref={audioRef} src="/bg-audio.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="https://abharanakakal.b-cdn.net/assets/bg-audio.mp3" loop preload="auto" />
       <button
         onClick={togglePlay}
         aria-label={isPlaying ? "Pause background music" : "Play background music"}

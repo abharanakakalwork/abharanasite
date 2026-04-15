@@ -13,7 +13,7 @@ export default function JourneySection() {
         <div className="w-full md:w-1/2 relative group">
           <motion.div className="relative aspect-[3/4] md:aspect-[4/5] rounded-tr-[120px] md:rounded-tr-[240px] rounded-bl-[40px] md:rounded-bl-[80px] overflow-hidden shadow-[0_40px_100px_rgba(188,103,70,0.1)] z-10 border border-white/20">
             <Image
-              src="/about.webp"
+              src="https://abharanakakal.b-cdn.net/assets/about.webp"
               alt="Sacred Wisdom"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"

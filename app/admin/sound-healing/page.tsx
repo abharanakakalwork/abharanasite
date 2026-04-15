@@ -31,6 +31,7 @@ interface SoundSession {
   intent?: string;
   frequency?: string;
   duration?: string;
+  category?: string;
   color?: string;
   created_at: string;
 }
@@ -51,6 +52,7 @@ export default function SoundHealingPage() {
     intent: '',
     frequency: '',
     duration: '',
+    category: '',
     color: '#bc6746',
   });
   
@@ -91,6 +93,7 @@ export default function SoundHealingPage() {
         intent: session.intent || '',
         frequency: session.frequency || '',
         duration: session.duration || '',
+        category: session.category || '',
         color: session.color || '#bc6746',
       });
     } else {
@@ -104,6 +107,7 @@ export default function SoundHealingPage() {
         intent: '',
         frequency: '',
         duration: '',
+        category: '',
         color: '#bc6746',
       });
     }
@@ -169,6 +173,7 @@ export default function SoundHealingPage() {
           intent: formData.intent,
           frequency: formData.frequency,
           duration: formData.duration,
+          category: formData.category,
           color: formData.color,
         };
 
@@ -345,6 +350,15 @@ export default function SoundHealingPage() {
                           onChange={e => setFormData({...formData, duration: e.target.value})}
                           className="w-full rounded-xl border border-[#f1e4da] bg-[#fffdf8] p-3 text-xs text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif italic"
                           placeholder="20:00"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black text-[#bc6746] uppercase tracking-widest">Category</label>
+                        <input 
+                          value={formData.category}
+                          onChange={e => setFormData({...formData, category: e.target.value})}
+                          className="w-full rounded-xl border border-[#f1e4da] bg-[#fffdf8] p-3 text-xs text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif italic"
+                          placeholder="Deep Meditation"
                         />
                       </div>
                       <div className="space-y-2">

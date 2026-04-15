@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Loader2 } from "lucide-react";
 import BookingFlow from "./components/BookingFlow";
@@ -48,6 +48,20 @@ export default function OnlineClassesPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [sortBy, setSortBy] = useState<SortOption>("Recommended");
   const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  // Outside click handler for dropdown
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
+        setSortOpen(false);
+      }
+    };
+    if (sortOpen) {
+      window.addEventListener("mousedown", handleClick);
+    }
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, [sortOpen]);
 
   useEffect(() => {
     async function load() {
@@ -68,15 +82,27 @@ export default function OnlineClassesPage() {
     if (activeCategory !== "All") {
       list = list.filter((o) => categorise(o) === activeCategory);
     }
-    if (sortBy === "Price: Low to High")
-      list.sort((a, b) => a.single_price - b.single_price);
-    if (sortBy === "Price: High to Low")
-      list.sort((a, b) => b.single_price - a.single_price);
-    if (sortBy === "Duration")
-      list.sort((a, b) => {
-        const mins = (s: string) => parseInt(s) || 60;
-        return mins(a.duration) - mins(b.duration);
-      });
+
+    // Helper to get numeric price safely
+    const getPrice = (o: Offering) => Number(o.single_price) || 0;
+
+    // Helper to normalize duration to minutes (e.g., "1 Hour" -> 60, "75 Mins" -> 75)
+    const getMins = (s: string) => {
+      if (!s) return 0;
+      const lower = s.toLowerCase();
+      const num = parseInt(lower) || 0;
+      if (lower.includes("hr") || lower.includes("hour")) return num * 60;
+      return num;
+    };
+
+    if (sortBy === "Price: Low to High") {
+      list.sort((a, b) => getPrice(a) - getPrice(b));
+    } else if (sortBy === "Price: High to Low") {
+      list.sort((a, b) => getPrice(b) - getPrice(a));
+    } else if (sortBy === "Duration") {
+      list.sort((a, b) => getMins(a.duration) - getMins(b.duration));
+    }
+
     return list;
   }, [offerings, activeCategory, sortBy]);
 
@@ -148,16 +174,17 @@ export default function OnlineClassesPage() {
                 </div>
 
                 {/* Sort dropdown */}
-                <div className="relative">
+                <div className="relative" ref={sortRef}>
                   <button
+                    type="button"
                     onClick={() => setSortOpen((v) => !v)}
-                    className="flex items-center gap-2 text-[13px] text-[#4a3b32] font-medium"
+                    className="flex items-center gap-2 text-[13px] text-[#4a3b32] font-medium hover:text-[#bc6746] transition-colors"
                   >
                     <span className="text-[#7a6a62]">Sort by</span>
                     <span className="font-semibold">{sortBy}</span>
                     <ChevronDown
                       size={14}
-                      className={`transition-transform duration-200 ${sortOpen ? "rotate-180" : ""}`}
+                      className={`transition-transform duration-300 ${sortOpen ? "rotate-180" : ""}`}
                     />
                   </button>
                   <AnimatePresence>
@@ -229,11 +256,11 @@ export default function OnlineClassesPage() {
                 )}
 
                 {/* Trust section */}
-                {!loading && displayed.length > 0 && (
+                {/* {!loading && displayed.length > 0 && (
                   <div className="mt-24">
                     <TrustSection />
                   </div>
-                )}
+                )} */}
               </div>
             </section>
           </motion.div>
@@ -256,13 +283,7 @@ export default function OnlineClassesPage() {
         )}
       </AnimatePresence>
 
-      {/* Close sort dropdown on outside click */}
-      {sortOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setSortOpen(false)}
-        />
-      )}
+      {/* Close sort dropdown on outside click removed in favor of useRef handler */}
     </main>
   );
 }

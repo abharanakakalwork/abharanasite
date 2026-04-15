@@ -7,6 +7,7 @@ import Script from "next/script";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LenisProvider from "./components/LenisProvider";
+import ImageProtection from "./components/ImageProtection";
 
 const robotoSlab = Roboto_Slab({
   variable: "--font-roboto-slab",
@@ -16,10 +17,19 @@ const robotoSlab = Roboto_Slab({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://abharana-kakal.com"),
-  title: "Abharana Kakal | Yoga, Sacred Retreats & From Within",
-  description: "Experience immersive yoga retreats and 'From Within' reflections in Bangalore & Mysore with Abharana Kakal. Sacred spaces for deep restoration.",
+  title: "Online Yoga Classes | Abharana Kakal - 20 Years of experience",
+  description: "Join personalised online yoga classes with Abharana Kakal, an experienced online yoga teacher offering holistic wellness and feminine awakening programs worldwide.",
   openGraph: {
-    images: ['/bg-images.webp'],
+    images: ['https://abharanakakal.b-cdn.net/assets/bg-images.webp'],
+    type: 'website',
+    siteName: 'Abharana Kakal',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['https://abharanakakal.b-cdn.net/assets/bg-images.webp'],
+  },
+  icons: {
+    icon: 'https://abharanakakal.b-cdn.net/assets/Asset%202Abharana%20Kakal%20-%20monogram%20only.png',
   },
 };
 
@@ -35,7 +45,7 @@ export default function RootLayout({
       lang="en"
       className={`${robotoSlab.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" cz-shortcut-listen="true">
+      <body className={`min-h-full flex flex-col ${process.env.NODE_ENV === 'production' ? 'production-mode' : ''}`} cz-shortcut-listen="true">
         <AudioProvider>
           <LenisProvider>
             <NavbarWrapper>{children}</NavbarWrapper>
@@ -52,6 +62,7 @@ export default function RootLayout({
                 fontFamily: 'inherit'
               }}
             />
+            <ImageProtection />
 
             <Script id="chatbase-script" strategy="afterInteractive">
               {`

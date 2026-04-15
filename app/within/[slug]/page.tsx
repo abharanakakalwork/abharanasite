@@ -51,7 +51,7 @@ export default async function WithinPostPage({ params }: Props) {
     excerpt: '',
     date: new Date(dbPost.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
     category: (dbPost.journal_categories as any)?.name || 'Wisdom',
-    image: dbPost.image_url || '/within-yoga.png',
+    image: dbPost.image_url || 'https://abharanakakal.b-cdn.net/assets/within-yoga.png',
     readTime: 'Read',
     content: dbPost.content,
   };
@@ -69,7 +69,7 @@ export default async function WithinPostPage({ params }: Props) {
     excerpt: '',
     date: new Date(rp.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
     category: (rp.journal_categories as any)?.name || 'Wisdom',
-    image: rp.image_url || '/within-yoga.png',
+    image: rp.image_url || 'https://abharanakakal.b-cdn.net/assets/within-yoga.png',
     readTime: 'Read',
     content: ''
   }));
@@ -79,7 +79,7 @@ export default async function WithinPostPage({ params }: Props) {
       {/* Background Image */}
       <div className="fixed inset-0 z-[-2] pointer-events-none">
         <Image
-          src="/wellness-practices-self-care-world-health-day.webp"
+          src="https://abharanakakal.b-cdn.net/assets/wellness-practices-self-care-world-health-day.webp"
           alt="Soft nature background"
           fill
           priority

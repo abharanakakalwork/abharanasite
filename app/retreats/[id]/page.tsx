@@ -64,7 +64,7 @@ export default function ImmersionDetailPage({ params }: { params: Promise<{ id: 
             className="absolute inset-0 z-0"
         >
           <Image
-            src={retreat.image_urls?.[0] || "/RT-bali.png"}
+            src={retreat.image_urls?.[0] || "https://abharanakakal.b-cdn.net/assets/rt-bali.png"}
             alt={retreat.title}
             fill
             priority

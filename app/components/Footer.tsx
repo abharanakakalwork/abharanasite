@@ -16,7 +16,7 @@ export default function Footer() {
         {/* SECTION 1 — CLOSING LINE */}
         <div className="text-center mb-16 md:mb-20 flex flex-col items-center">
           <img 
-            src="/Abharana Kakal - brown - monogram only.svg" 
+            src="https://abharanakakal.b-cdn.net/assets/Abharana%20Kakal%20-%20brown%20-%20monogram%20only.svg" 
             alt="Abharana Kakal Monogram" 
             className="w-48 h-48 md:w-36 md:h-36 mb-8 opacity-100 object-contain"
           />

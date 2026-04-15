@@ -3,6 +3,8 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { publicService } from "@/lib/api/public";
+import { motion, AnimatePresence } from "motion/react";
+import { Sparkles, Bell, Calendar } from "lucide-react";
 
 function SessionCard({
   session,
@@ -24,7 +26,7 @@ function SessionCard({
       <div className="relative bg-[#fffdf8] border border-[#f1e4da]/50 rounded-[48px] overflow-hidden transition-all duration-700 hover:shadow-[0_40px_80px_-20px_rgba(188,103,70,0.12)] flex flex-col h-full">
         <div className="relative h-64 overflow-hidden">
           <Image
-            src={session.image_url || "/other-page-bg.jpeg"}
+            src={session.image_url || "https://abharanakakal.b-cdn.net/assets/other-page-bg.jpeg"}
             alt={session.title}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -158,9 +160,7 @@ export default function SessionsSection() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 text-[#4a3b32]/40 italic font-light">
-            The sanctuary is quiet for now. Please check back gently.
-          </div>
+          <ComingSoonUI />
         )}
 
         <div className="flex justify-center mt-20">
@@ -168,5 +168,105 @@ export default function SessionsSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+function ComingSoonUI() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className="relative max-w-4xl mx-auto px-6 py-20"
+    >
+      {/* Background Decorative Elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-20 -right-20 w-80 h-80 bg-[#bc6746]/10 rounded-full blur-[80px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+          className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#a55a3d]/10 rounded-full blur-[80px]"
+        />
+      </div>
+
+      <div className="relative z-10 soft-glass paper-grain rounded-[60px] p-12 md:p-20 text-center border border-[#f1e4da]/50 shadow-2xl overflow-hidden">
+        {/* Animated Sound Waves/Ripples */}
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            {[1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{
+                  scale: [0.8, 2],
+                  opacity: [0.5, 0],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  delay: i * 1.3,
+                  ease: "easeOut",
+                }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] border border-[#bc6746] rounded-full"
+              />
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="relative z-10"
+        >
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#bc6746]/10 mb-8 border border-[#bc6746]/20">
+            <Sparkles className="text-[#bc6746] w-8 h-8 animate-pulse" />
+          </div>
+
+          <span className="block text-[#bc6746] font-mono text-xs uppercase tracking-[0.4em] mb-4">
+            the gathering returns soon
+          </span>
+
+          <h3 className="text-4xl md:text-5xl font-serif text-[#4a3b32] mb-6 leading-tight">
+            The Sanctuary is Resting
+          </h3>
+
+          <p className="max-w-xl mx-auto text-[#4a3b32]/70 text-lg font-light italic mb-12 leading-relaxed">
+            &ldquo;New transformative sound journeys are being curated with deep
+            intention. We are harmonizing frequencies for our next gathering
+            across Bangalore and Mysore.&rdquo;
+          </p>
+
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+            <Link
+              href="/online-classes"
+              className="px-10 py-4 border border-[#bc6746]/30 text-[#bc6746] rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#bc6746]/5 transition-all flex items-center gap-3"
+            >
+              Explore Online Classes
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Decorative corner icon */}
+        <div className="absolute bottom-10 right-10 opacity-10">
+          <Calendar size={80} className="text-[#bc6746]" />
+        </div>
+      </div>
+    </motion.div>
   );
 }

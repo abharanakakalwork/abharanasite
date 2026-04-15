@@ -9,9 +9,9 @@ import AboutFinalCTA from "./components/AboutFinalCTA";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About | Abharana Kakal",
+  title: "About Abharana Kakal | Online Yoga Teacher & Sound Healer",
   description:
-    "A journey into yoga, sound healing, and inner awareness. Learn more about the path and offerings of Abharana Kakal.",
+    "Learn about Abharana Kakal, an experienced online yoga teacher and sound healer offering retreats and feminine awakening programs from Mysore and Bangalore.",
 };
 
 export default function AboutPage() {

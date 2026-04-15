@@ -74,7 +74,7 @@ function RetreatCard({ retreat, index }: { retreat: any; index: number }) {
       {/* Image Section */}
       <div className="relative h-[55%] overflow-hidden">
         <Image 
-          src={retreat.image_urls?.[0] || "/RT-bali.png"} 
+          src={retreat.image_urls?.[0] || "https://abharanakakal.b-cdn.net/assets/rt-bali.png"} 
           alt={retreat.title} 
           fill 
           sizes="(max-width: 768px) 100vw, 33vw"

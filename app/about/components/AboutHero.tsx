@@ -28,7 +28,7 @@ export default function AboutHero() {
         className="absolute inset-0 z-0"
       >
         <Image
-          src="/about-hero-bg.png"
+          src="https://abharanakakal.b-cdn.net/assets/about-hero-bg.png"
           alt="Misty Sanctuary"
           fill
           sizes="100vw"
@@ -70,7 +70,7 @@ export default function AboutHero() {
         <div className="w-full md:w-1/2 relative group">
           <motion.div className="relative aspect-[3/4] md:aspect-[4/5] rounded-t-[240px] rounded-br-[80px] rounded-bl-[40px] overflow-hidden shadow-[0_50px_120px_rgba(188,103,70,0.2)] z-20 border border-white/40">
             <Image
-              src="/about-portrait.webp"
+              src="https://abharanakakal.b-cdn.net/assets/about-portrait.webp"
               alt="Portrait of Presence"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"

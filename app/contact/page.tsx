@@ -3,9 +3,9 @@ import ContactForm from "./components/ContactForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact | Abharana Kakal",
+  title: "Contact | Book Yoga Classes with Abharana Kakal",
   description:
-    "If you feel called, you’re welcome to reach out. Whether you’re exploring yoga, sound healing, or retreats, connect with Abharana Kakal.",
+    "Get in touch with Abharana Kakal to book online yoga classes, sound healing sessions, or retreats. Enquire now and begin your journey inward.",
 };
 
 export default function ContactPage() {
@@ -14,7 +14,7 @@ export default function ContactPage() {
       {/* Global Background Image (Inherited Style) */}
       <div className="fixed inset-0 z-[-2] pointer-events-none">
         <Image
-          src="/other-page-bg.jpeg"
+          src="https://abharanakakal.b-cdn.net/assets/other-page-bg.jpeg"
           alt="Contact Background"
           fill
           priority

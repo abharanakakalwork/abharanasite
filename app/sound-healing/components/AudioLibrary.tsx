@@ -351,7 +351,7 @@ export default function AudioLibrary() {
     "All",
     ...Array.from(
       new Set(
-        tracks.map((t) => t.category || t.intent || "Other").filter(Boolean),
+        tracks.map((t) => (t.category || t.intent || "Other").toUpperCase()).filter(Boolean),
       ),
     ),
   ];

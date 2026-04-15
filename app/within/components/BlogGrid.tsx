@@ -70,7 +70,7 @@ export default function BlogGrid() {
             excerpt: p.content.length > 150 && p.content.startsWith('{') ? 'Exploring the depths of inner awareness through sacred practice...' : p.content.substring(0, 160) + '...',
             date: new Date(p.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
             category: p.journal_categories?.name || 'Wisdom',
-            image: p.image_url || '/within-yoga.png',
+            image: p.image_url || 'https://abharanakakal.b-cdn.net/assets/within-yoga.png',
             readTime: 'Read',
             isDynamic: true
           }));

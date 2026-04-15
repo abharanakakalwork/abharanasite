@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Guided Meditation Sessions | Abharana Kakal",
+  title: "Guided Meditation Audio | Abharana Kakal",
   description:
-    "Explore our full library of guided meditation sessions — each tuned to specific frequencies to shift your cellular vibration and restore inner peace.",
+    "Listen to guided meditation audio by Abharana Kakal. Experience deep relaxation, sound healing, and inner balance through calming, immersive sessions.",
 };
 
 export default function GuidedMeditationsPage() {

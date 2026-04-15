@@ -225,3 +225,16 @@
   background-size: 12.5% 12.5vh;
   pointer-events: none;
 }
+
+/* Image Protection Attributes */
+.production-mode img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

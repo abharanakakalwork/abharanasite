@@ -6,7 +6,14 @@ import ExperienceSection from "./components/ExperienceSection";
 import LocationsSection from "./components/LocationsSection";
 import TestimonialsSection from "./components/TestimonialsSection";
 import GallerySection from "./components/GallerySection";
+import type { Metadata } from "next";
 import FinalCTA from "./components/FinalCTA";
+
+export const metadata: Metadata = {
+  title: "Yoga Retreats & Feminine Awakening | Abharana Kakal",
+  description:
+    "Join transformative yoga retreats with Abharana Kakal. Experience feminine awakening, sound healing, and deep inner connection in curated retreat spaces.",
+};
 
 export default function RetreatsPage() {
   return (
@@ -14,7 +21,7 @@ export default function RetreatsPage() {
       {/* Global Background Image */}
       <div className="fixed inset-0 z-[-2] pointer-events-none">
         <Image
-          src="/wellness-practices-self-care-world-health-day.webp"
+          src="https://abharanakakal.b-cdn.net/assets/wellness-practices-self-care-world-health-day.webp"
           alt="Organic Watercolor Background"
           fill
           priority
@@ -27,7 +34,7 @@ export default function RetreatsPage() {
       <IntroSection />
       <RetreatCards />
       <ExperienceSection />
-      <LocationsSection />
+      {/* <LocationsSection /> */}
       <TestimonialsSection />
       <GallerySection />
       <FinalCTA />
