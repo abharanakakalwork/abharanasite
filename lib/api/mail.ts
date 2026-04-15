@@ -33,7 +33,7 @@ export async function sendZeptoMail({
   subject: string;
   htmlBody: string;
 }) {
-  const token = process.env.ZEPTOMAIL_SEND_MAIL_TOKEN;
+  const token = process.env.ZEPTOMAIL_SEND_MAIL_TOKEN?.trim();
   const senderEmail = process.env.ZEPTOMAIL_SENDER_EMAIL || 'yoga@abharanakakal.com';
   const senderName = process.env.ZEPTOMAIL_SENDER_NAME || 'Abharana Kakal Sanctuary';
   
@@ -45,6 +45,9 @@ export async function sendZeptoMail({
     console.error('[ZEPTOMAIL_ERROR] Missing ZEPTOMAIL_SEND_MAIL_TOKEN environment variable.');
     throw new Error('Email service not configured correctly.');
   }
+
+  // Clean the token: remove prefix if the user included it in the environment variable
+  const cleanToken = token.replace(/zoho-enczapikey\s+/i, '');
 
   const payload: ZeptoMailRequest = {
     from: {
@@ -66,7 +69,7 @@ export async function sendZeptoMail({
   try {
     const response = await axios.post(apiUrl, payload, {
       headers: {
-        'Authorization': `zoho-enczapikey ${token}`,
+        'Authorization': `zoho-enczapikey ${cleanToken}`,
         'Content-Type': 'application/json',
       },
     });
