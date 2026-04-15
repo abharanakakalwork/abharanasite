@@ -184,17 +184,17 @@ export default function BlogGrid() {
                       >
                         {featured.category}
                       </span>
-                      <span className="text-[10px] text-[#4a3b32]/50 uppercase tracking-[0.2em] font-bold">
+                      <span className="text-[10px] text-white/70 uppercase tracking-[0.2em] font-bold">
                         {featured.date}
                       </span>
                     </div>
-                    <h2 className="font-serif text-3xl md:text-5xl text-[#ffffff] leading-tight mb-6 group-hover:text-[#bc6746] transition-colors">
+                    <h2 className="font-serif text-3xl md:text-5xl text-[#ffffff] leading-tight mb-6 transition-colors">
                       {featured.title}
                     </h2>
                     <p className="text-base text-[#ffff]/70 leading-relaxed mb-8 italic line-clamp-3">
                       {featured.excerpt}
                     </p>
-                    <div className="flex items-center gap-3 text-[#bc6746] text-[10px] uppercase tracking-[0.3em] font-bold">
+                    <div className="flex bg-white p-4 rounded-full w-fit cursor-pointer hover:bg-[#bc6746] hover:text-white transition-colors items-center gap-3 text-[#bc6746] text-[10px] uppercase tracking-[0.3em] font-bold">
                       <span>Read More</span>
                       <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-2" />
                     </div>

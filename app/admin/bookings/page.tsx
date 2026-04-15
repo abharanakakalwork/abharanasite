@@ -242,9 +242,9 @@ export default function BookingsAdmin() {
             header: 'Date',
             accessor: (item) => (
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-[#4a3b32]">{formatDateLocal(new Date(item.created_at))}</span>
+                <span className="text-xs font-bold text-[#4a3b32]">{getBookingDate(item)}</span>
                 <span className="text-[10px] uppercase tracking-tighter text-[#a55a3d]/50">
-                  {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {item.metadata?.time || 'Time TBD'}
                 </span>
               </div>
             ),
@@ -282,27 +282,15 @@ export default function BookingsAdmin() {
           {
             header: 'Payment Status',
             accessor: (item) => {
-              const isPaid = item.payment_status === 'verified' || item.payment_status === 'paid';
-              const isPending = item.payment_status === 'submitted' || item.payment_status === 'pending';
-              const isFailed = item.payment_status === 'failed';
-
               return (
               <div
                 className={cn(
                   'flex min-w-[100px] items-center justify-center rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest',
-                  isPaid
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
-                    : isPending
-                      ? 'border-amber-200 bg-amber-50 text-amber-600'
-                      : isFailed
-                        ? 'border-red-200 bg-red-50 text-red-600'
-                        : 'border-stone-200 bg-stone-50 text-stone-400'
+                  'border-emerald-200 bg-emerald-50 text-emerald-600'
                 )}
               >
-                {isPaid && <CheckCircle className="mr-1 h-3 w-3" />}
-                {isPending && <Clock className="mr-1 h-3 w-3" />}
-                {isFailed && <AlertCircle className="mr-1 h-3 w-3" />}
-                {isPaid ? 'paid' : isPending ? 'pending' : isFailed ? 'failed' : item.payment_status}
+                <CheckCircle className="mr-1 h-3 w-3" />
+                paid
               </div>
             )},
           },
@@ -435,13 +423,13 @@ export default function BookingsAdmin() {
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]/40">Payment Status</span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]">
-                      {(selectedBooking.payment_status === 'verified' || selectedBooking.payment_status === 'paid') ? 'paid' : (selectedBooking.payment_status === 'submitted' || selectedBooking.payment_status === 'pending') ? 'pending' : selectedBooking.payment_status}
+                      PAID
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]/40">Booking Status</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]">{selectedBooking.booking_status}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]">CONFIRMED</span>
                   </div>
 
                   <div className="flex items-center justify-between border-t border-[#f1e4da]/50 pt-3">
@@ -474,7 +462,7 @@ export default function BookingsAdmin() {
                               </p>
                             </div>
                             <span className="rounded-full bg-[#bc6746]/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#bc6746]">
-                              {(booking.payment_status === 'verified' || booking.payment_status === 'paid') ? 'paid' : (booking.payment_status === 'submitted' || booking.payment_status === 'pending') ? 'pending' : booking.payment_status}
+                              PAID
                             </span>
                           </div>
 
@@ -489,7 +477,7 @@ export default function BookingsAdmin() {
                             </div>
                             <div>
                               <p className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]/40">Booking Status</p>
-                              <p className="mt-1">{booking.booking_status}</p>
+                              <p className="mt-1">CONFIRMED</p>
                             </div>
                             <div>
                               <p className="text-[10px] font-bold uppercase tracking-widest text-[#4a3b32]/40">Reference</p>
