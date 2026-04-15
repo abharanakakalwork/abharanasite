@@ -209,7 +209,7 @@ export default function RetreatsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32]">Retreat Sanctuaries</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32]">Retreats</h1>
           <p className="mt-2 text-[#a55a3d]/70">Manage the portals to deep restoration.</p>
         </motion.div>
         <button 
@@ -217,7 +217,7 @@ export default function RetreatsPage() {
           className="flex items-center space-x-2 rounded-2xl bg-[#bc6746] px-6 py-3 font-bold text-white shadow-lg shadow-[#bc6746]/10 transition-all hover:scale-105 active:scale-95"
         >
           <Plus className="h-5 w-5" />
-          <span>New Retreat</span>
+          <span>Add Retreat</span>
         </button>
       </div>
 
@@ -304,7 +304,7 @@ export default function RetreatsPage() {
                 <form onSubmit={handleSubmit} className="space-y-8">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#4a3b32] uppercase tracking-widest">
-                      {editingRetreat ? 'Update Sanctuary' : 'Manifest New Retreat'}
+                      {editingRetreat ? 'Update Retreat' : 'Add Retreat'}
                     </h2>
                     <button type="button" onClick={() => setIsModalOpen(false)} className="text-[#a55a3d]/50 hover:text-[#bc6746] transition-colors">
                       <X className="h-6 w-6" />

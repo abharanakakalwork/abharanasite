@@ -36,7 +36,7 @@ export default async function RefundPolicyPage() {
 
           <h2>General Terms</h2>
           <p>All refunds will be processed via the original payment method (Razorpay or Bank Transfer) within 7-10 business days. Transaction fees or GST already remitted to the government may be non-refundable.</p>
-          <p>For any refund requests, please contact us at <strong>contact@abharanakakal.com</strong>.</p>
+          <p>For any refund requests, please contact us at <strong>yoga@abharanakakal.com</strong>.</p>
         `} 
       />
     );

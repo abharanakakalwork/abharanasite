@@ -121,7 +121,7 @@ const [isUpdating, setIsUpdating] = useState(false);
       {/* Header */}
       <div className="flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32]">Guest Enquiries</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32]">Messages</h1>
           <p className="mt-2 text-[#a55a3d]/70">Respond to the whispers of seekers.</p>
         </motion.div>
         <span className="rounded-full bg-[#bc6746]/5 border border-[#f1e4da] px-4 py-1 text-xs text-[#a55a3d]/50 font-bold">

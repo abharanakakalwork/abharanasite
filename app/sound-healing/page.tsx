@@ -1,7 +1,7 @@
 import Image from "next/image";
 import HeroSection from "./components/HeroSection";
 import IntroSection from "./components/IntroSection";
-import AudioLibrary from "./components/AudioLibrary";
+import MeditationTeaser from "./components/MeditationTeaser";
 import SessionsSection from "./components/SessionsSection";
 import WhyInPersonSection from "./components/WhyInPersonSection";
 import TestimonialsSection from "./components/TestimonialsSection";
@@ -9,7 +9,7 @@ import FinalCTA from "./components/FinalCTA";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sound Healing & Guided Meditation | Abharana Kakal",
+  title: "Sound Healing | Abharana Kakal",
   description:
     "Experience live sound healing sessions in Bangalore & Mysore — Tibetan bowls, crystal bowls, gong baths, and guided meditation with Abharana Kakal.",
 };
@@ -31,7 +31,7 @@ export default function SoundHealingPage() {
 
       <HeroSection />
       <IntroSection />
-      <AudioLibrary />
+      <MeditationTeaser />
       <SessionsSection />
       <WhyInPersonSection />
       <TestimonialsSection />

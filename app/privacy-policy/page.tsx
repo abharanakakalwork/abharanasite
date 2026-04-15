@@ -35,7 +35,7 @@ export default async function PrivacyPolicyPage() {
           <p>We use minimal cookies to ensure the website functions smoothly and to understand how visitors interact with our offerings to improve the experience.</p>
 
           <h2>5. Your Rights</h2>
-          <p>You can request to view, edit, or delete your personal data at any time by contacting us at hi@abharanakakal.com.</p>
+          <p>You can request to view, edit, or delete your personal data at any time by contacting us at yoga@abharanakakal.com.</p>
         `} 
       />
     );

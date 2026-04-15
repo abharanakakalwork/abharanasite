@@ -15,13 +15,7 @@ async function patchHandler(req: NextRequest, { params }: { params: { id: string
     if (!id) return NextResponse.json({ error: 'Booking ID required' }, { status: 400 });
 
     const updateData: any = {};
-    if (payment_status) {
-        updateData.payment_status = payment_status;
-        if (payment_status === 'verified' || payment_status === 'paid') {
-            updateData.booking_status = 'confirmed';
-            updateData.payment_status = is_legacy ? 'paid' : 'verified'; 
-        }
-    }
+    if (payment_status) updateData.payment_status = payment_status;
     if (booking_status) updateData.booking_status = booking_status;
 
     let res;

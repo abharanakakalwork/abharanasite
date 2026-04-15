@@ -212,8 +212,8 @@ export default function UpcomingSessionsPage() {
       {/* Header */}
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">Upcoming Sessions</h1>
-          <p className="mt-2 text-[#a55a3d]/70 italic">Manage synchronized spiritual gatherings and resonant events.</p>
+          <h1 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">Events</h1>
+          <p className="mt-2 text-[#a55a3d]/70 italic">Manage upcoming events and session details.</p>
         </motion.div>
         
         <div className="flex items-center space-x-4">
@@ -222,7 +222,7 @@ export default function UpcomingSessionsPage() {
             className="flex items-center space-x-2 rounded-2xl bg-[#bc6746] px-6 py-3 font-black text-white text-[10px] uppercase tracking-widest shadow-lg shadow-[#bc6746]/10 transition-all hover:bg-[#a55a3d] hover:scale-105 active:scale-95"
           >
             <Plus className="h-5 w-5" />
-            <span>Invoke New Session</span>
+            <span>Add Event</span>
           </button>
         </div>
       </div>
@@ -310,7 +310,7 @@ export default function UpcomingSessionsPage() {
                 <div className="flex justify-between items-center mb-10 pb-6 border-b border-[#f1e4da]/50">
                   <div>
                     <h2 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter leading-none">
-                      {editingSession ? 'Evolve Gathering' : 'Invoke Session'}
+                      {editingSession ? 'Edit Event' : 'Add Event'}
                     </h2>
                     <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#bc6746]/40 mt-2">Spiritual Event Configuration</p>
                   </div>

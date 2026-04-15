@@ -112,7 +112,8 @@ export const mediaService = {
 };
 
 export const bookingService = {
-  list: (params?: { type?: string; status?: string }) => api.get('/bookings', { params }),
+  list: (params?: { type?: string; status?: string; page?: number; limit?: number; search?: string }) => api.get('/bookings', { params }),
+  history: (email: string) => api.get('/bookings/history', { params: { email } }),
   update: (id: string, data: any) => api.patch(`/bookings/${id}`, data),
   delete: (id: string) => api.delete(`/bookings/${id}`),
   create: (data: any) => api.post('/bookings', data), // Unified creation entry

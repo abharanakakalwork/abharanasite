@@ -52,10 +52,10 @@ export default function Footer() {
         <div className="flex flex-col items-center gap-6 mb-16 text-center">
           <div className="space-y-2">
             <a
-              href="mailto:hi@abharanakakal.com"
+              href="mailto:yoga@abharanakakal.com"
               className="text-[#bc6746] text-sm md:text-base hover:opacity-75 transition-opacity"
             >
-              hi@abharanakakal.com
+              yoga@abharanakakal.com
             </a>
             <p className="text-[#a55a3d]/70 text-[12px] md:text-sm tracking-widest uppercase">
               Bangalore / Mysore

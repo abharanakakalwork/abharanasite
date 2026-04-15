@@ -14,29 +14,28 @@ import {
   Settings, 
   LogOut,
   CalendarDays,
-  FileText,
   Download,
   Palette
 } from 'lucide-react';
-import { clsx } from 'clsx';
+import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-function cn(...inputs: any[]) {
+function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 const MENU_ITEMS = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
   { icon: ClipboardList, label: 'Bookings', href: '/admin/bookings' },
-  { icon: MessageSquare, label: 'Enquiries', href: '/admin/enquiries' },
-  { icon: BookOpen, label: 'Online Yoga', href: '/admin/online-sessions' },
-  { icon: Music, label: 'Sound Healing', href: '/admin/sound-healing' },
-  { icon: CalendarDays, label: 'Upcoming Sessions', href: '/admin/upcoming-sessions' },
+  { icon: MessageSquare, label: 'Messages', href: '/admin/enquiries' },
+  { icon: BookOpen, label: 'Yoga Classes', href: '/admin/online-sessions' },
+  { icon: Music, label: 'Meditation Audio', href: '/admin/sound-healing' },
+  { icon: CalendarDays, label: 'Events', href: '/admin/upcoming-sessions' },
   { icon: Palmtree, label: 'Retreats', href: '/admin/retreats' },
-  { icon: BookOpen, label: 'Within', href: '/admin/within' },
-  { icon: Palette, label: 'Pages', href: '/admin/pages' },
-  { icon: Download, label: 'Downloads', href: '/admin/downloads' },
-  { icon: Settings, label: 'Settings', href: '/admin/settings' },
+  { icon: BookOpen, label: 'Blog', href: '/admin/within' },
+  { icon: Palette, label: 'Site Pages', href: '/admin/pages' },
+  { icon: Download, label: 'Files', href: '/admin/downloads' },
+  { icon: Settings, label: 'Admin Settings', href: '/admin/settings' },
 ];
 
 export const Sidebar: React.FC = () => {
@@ -97,7 +96,7 @@ export const Sidebar: React.FC = () => {
             className="flex w-full items-center space-x-3 rounded-xl px-4 py-3 text-[#4a3b32]/40 transition-all duration-300 hover:bg-red-500/10 hover:text-red-500"
           >
             <LogOut className="h-5 w-5" />
-            <span className="text-sm font-medium">Logout System</span>
+            <span className="text-sm font-medium">Log Out</span>
           </button>
         </div>
       </div>

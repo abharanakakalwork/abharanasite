@@ -213,8 +213,8 @@ export default function SoundHealingPage() {
       {/* Header */}
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">Sound Library</h1>
-          <p className="mt-2 text-[#a55a3d]/70 italic">Curate the resonant frequencies of transformation.</p>
+          <h1 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">Meditation Audio</h1>
+          <p className="mt-2 text-[#a55a3d]/70 italic">Add and manage meditation audio tracks.</p>
         </motion.div>
         
         <div className="flex items-center space-x-4">
@@ -223,7 +223,7 @@ export default function SoundHealingPage() {
             className="flex items-center space-x-2 rounded-2xl bg-[#bc6746] px-6 py-3 font-black text-white text-[10px] uppercase tracking-widest shadow-lg shadow-[#bc6746]/10 transition-all hover:bg-[#a55a3d] hover:scale-105 active:scale-95"
           >
             <Plus className="h-5 w-5" />
-            <span>Invoke New Resonance</span>
+            <span>Add Audio</span>
           </button>
         </div>
       </div>
@@ -284,7 +284,7 @@ export default function SoundHealingPage() {
               <form onSubmit={handleSubmit} className="p-8 space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-[#f1e4da]">
                   <h2 className="text-2xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">
-                    {editingSession ? 'Evolve Resonance' : 'Invoke Frequency'}
+                    {editingSession ? 'Edit Audio' : 'Add Audio'}
                   </h2>
                   <button type="button" onClick={() => setIsModalOpen(false)} className="text-[#a55a3d]/50 hover:text-[#bc6746] transition-colors p-2">
                     <X className="h-6 w-6" />
@@ -471,7 +471,7 @@ export default function SoundHealingPage() {
                     ) : (
                       <CheckCircle className="h-4 w-4 mr-2" />
                     )}
-                    {isSubmitting ? 'Syncing...' : (isUploadingAudio || isUploadingImage) ? 'Uploading Media...' : (editingSession ? 'Update Vibration' : 'Invoke Resonance')}
+                    {isSubmitting ? 'Saving...' : (isUploadingAudio || isUploadingImage) ? 'Uploading Media...' : (editingSession ? 'Save Changes' : 'Add Audio')}
                   </button>
                 </div>
               </form>

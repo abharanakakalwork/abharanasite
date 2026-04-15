@@ -1,16 +1,31 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Ban } from 'lucide-react';
 import { cn, formatDateLocal } from '@/lib/utils';
+
+interface CalendarSession {
+  session_date: string;
+  start_time: string;
+  cooldown_minutes?: number;
+  duration_minutes?: number;
+  booked_count: number;
+  capacity: number;
+  is_blocked?: boolean;
+}
+
+interface CalendarException {
+  exception_date: string;
+  is_blocked?: boolean;
+}
 
 interface CalendarProps {
   selectedDate: Date | null;
   onDateSelect: (date: Date) => void;
   availabilityData?: {
-    sessions?: any[];
-    exceptions?: any[];
+    sessions?: CalendarSession[];
+    exceptions?: CalendarException[];
   };
   className?: string;
   isAdmin?: boolean;
@@ -111,22 +126,27 @@ export const Calendar: React.FC<CalendarProps> = ({
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className={cn("bg-white/40 backdrop-blur-md rounded-[32px] border border-[#f1e4da] p-3 shadow-sm", className)}>
+    <div
+      className={cn(
+        "rounded-[32px] border border-[#dbc8b8] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.98),_rgba(248,242,235,0.96)_45%,_rgba(244,234,224,0.92))] p-4 shadow-[0_20px_50px_rgba(98,71,50,0.08),inset_0_1px_0_rgba(255,255,255,0.85)] sm:p-6",
+        className
+      )}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-serif text-[#4a3b32] font-medium leading-none">
-          {monthName} <span className="text-[#a55a3d]/40 ml-1">{year}</span>
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-2xl font-serif font-medium leading-none text-[#3d2c22]">
+          {monthName} <span className="ml-1 text-[#9b7f69]">{year}</span>
         </h3>
         <div className="flex space-x-1">
           <button 
             onClick={handlePrevMonth}
-            className="p-1.5 rounded-full hover:bg-[#bc6746]/10 text-[#bc6746] transition-colors"
+            className="rounded-full border border-[#e2d2c5] bg-white/80 p-2 text-[#7a5a48] transition-colors hover:bg-[#bc6746]/10"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button 
             onClick={handleNextMonth}
-            className="p-1.5 rounded-full hover:bg-[#bc6746]/10 text-[#bc6746] transition-colors"
+            className="rounded-full border border-[#e2d2c5] bg-white/80 p-2 text-[#7a5a48] transition-colors hover:bg-[#bc6746]/10"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -134,16 +154,16 @@ export const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Weekdays */}
-      <div className="grid grid-cols-7 mb-2">
+      <div className="mb-3 grid grid-cols-7">
         {weekdays.map(day => (
-          <div key={day} className="text-center text-[10px] font-black uppercase tracking-[0.2em] text-[#a55a3d]/40 py-2">
+          <div key={day} className="py-2 text-center text-[10px] font-black uppercase tracking-[0.24em] text-[#8e725d]">
             {day}
           </div>
         ))}
       </div>
 
       {/* Days Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-2 sm:gap-3">
         {daysInMonth.map((date, idx) => {
           if (!date) return <div key={`empty-${idx}`} />;
           
@@ -155,24 +175,27 @@ export const Calendar: React.FC<CalendarProps> = ({
           return (
             <motion.button
               key={date.toDateString()}
-              whileHover={!isPast && !isBlocked ? { scale: 1.1 } : {}}
-              whileTap={!isPast && !isBlocked ? { scale: 0.95 } : {}}
+              whileHover={!isPast && !isBlocked ? { scale: 1.04 } : {}}
+              whileTap={!isPast && !isBlocked ? { scale: 0.97 } : {}}
               onClick={() => (!isPast || isAdmin) && onDateSelect(date)}
               disabled={isPast && !isAdmin}
               className={cn(
-                "relative aspect-square flex flex-col items-center justify-center rounded-xl text-sm transition-all duration-300",
-                selected ? "bg-[#bc6746] text-white shadow-lg shadow-[#bc6746]/20 z-10" : "hover:bg-[#bc6746]/5 text-[#4a3b32]",
-                today && !selected && "border border-[#bc6746]/30",
+                "relative aspect-square min-h-[4.25rem] rounded-[20px] border text-sm transition-all duration-300",
+                "flex flex-col items-center justify-center overflow-hidden",
+                selected
+                  ? "z-10 border-[#b8643d] bg-[#c76c3f] text-white shadow-[0_12px_30px_rgba(188,103,70,0.28),inset_0_0_0_2px_rgba(255,244,235,0.85)]"
+                  : "border-transparent text-[#4a3b32] hover:border-[#e2c7b6] hover:bg-white/70",
+                today && !selected && "border-[#d9bba8] bg-white/50",
                 (isPast && !isAdmin) && "opacity-20 cursor-not-allowed",
-                isBlocked && "bg-gray-100/50 opacity-40 cursor-not-allowed overflow-hidden"
+                isBlocked && "bg-gray-100/50 opacity-40 cursor-not-allowed"
               )}
             >
-              <span className={cn("relative z-10", selected ? "font-bold" : "font-medium")}>
+              <span className={cn("relative z-10 text-base", selected ? "font-bold" : "font-medium")}>
                 {date.getDate()}
               </span>
 
               {/* Status Indicators */}
-              <div className="absolute bottom-1.5 flex space-x-0.5">
+              <div className="absolute bottom-2 flex space-x-0.5">
                 {isBlocked ? (
                    <Ban className="w-2.5 h-2.5 text-red-400/50" />
                 ) : hasSessions && (
@@ -193,16 +216,16 @@ export const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-4 pt-4 border-t border-[#f1e4da] flex flex-wrap gap-x-4 gap-y-2 justify-center">
-         <div className="flex items-center space-x-1.5 text-[9px] uppercase font-bold tracking-widest text-[#a55a3d]/60">
+      <div className="mt-5 flex flex-wrap justify-center gap-x-4 gap-y-2 border-t border-[#e8d7ca] pt-4">
+         <div className="flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest text-[#8e725d]">
             <div className="w-1.5 h-1.5 rounded-full bg-[#bc6746]" />
             <span>Available</span>
          </div>
-         <div className="flex items-center space-x-1.5 text-[9px] uppercase font-bold tracking-widest text-[#a55a3d]/60">
+         <div className="flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest text-[#8e725d]">
             <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
             <span>Full</span>
          </div>
-         <div className="flex items-center space-x-1.5 text-[9px] uppercase font-bold tracking-widest text-[#a55a3d]/60">
+         <div className="flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest text-[#8e725d]">
             <div className="w-2 h-2 border-t border-l border-gray-400 rotate-45 transform translate-y-0.5" />
             <span>Closed</span>
          </div>

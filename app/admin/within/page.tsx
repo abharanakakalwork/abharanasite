@@ -207,8 +207,8 @@ export default function WithinAdminPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-4xl font-serif font-bold tracking-tight text-[#4a3b32]">From Within</h1>
-          <p className="mt-2 text-[#a55a3d]/70 italic">Share your wisdom and restorative insights.</p>
+          <h1 className="text-4xl font-serif font-bold tracking-tight text-[#4a3b32]">Blog</h1>
+          <p className="mt-2 text-[#a55a3d]/70 italic">Manage blog posts and categories.</p>
         </motion.div>
         
         <div className="flex rounded-2xl bg-[#bc6746]/5 p-1 border border-[#f1e4da] backdrop-blur-xl">
@@ -216,13 +216,13 @@ export default function WithinAdminPage() {
              onClick={() => setActiveTab('posts')}
              className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'posts' ? 'bg-[#bc6746] text-white shadow-lg' : 'text-[#a55a3d]/50 hover:text-[#bc6746]'}`}
            >
-             POSTS
+             Posts
            </button>
            <button 
              onClick={() => setActiveTab('categories')}
              className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === 'categories' ? 'bg-[#bc6746] text-white shadow-lg' : 'text-[#a55a3d]/50 hover:text-[#bc6746]'}`}
            >
-             CATEGORIES
+             Categories
            </button>
         </div>
       </div>
@@ -247,7 +247,7 @@ export default function WithinAdminPage() {
                  className="flex items-center space-x-2 rounded-full bg-[#bc6746] px-8 py-3 font-semibold text-white uppercase tracking-widest text-xs shadow-lg shadow-[#bc6746]/20 transition-all hover:bg-[#a55a3d] hover:-translate-y-0.5 active:scale-95"
                >
                   <Plus className="h-4 w-4" />
-                  <span>New Entry</span>
+                  <span>Add Post</span>
                </button>
             </div>
 
@@ -295,7 +295,7 @@ export default function WithinAdminPage() {
             className="max-w-4xl mx-auto"
           >
             <GlassCard>
-               <h3 className="text-xl font-bold text-[#4a3b32] mb-6 uppercase tracking-widest">Category Manifestation</h3>
+               <h3 className="text-xl font-bold text-[#4a3b32] mb-6 uppercase tracking-widest">Add Category</h3>
                <form onSubmit={addCategory} className="flex space-x-4 mb-8">
                   <input 
                     value={newCategoryName}
@@ -304,7 +304,7 @@ export default function WithinAdminPage() {
                     placeholder="E.g., Quantum Healing, Nature, Wellness..."
                   />
                   <button type="submit" className="px-8 py-4 rounded-2xl bg-[#bc6746] text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#bc6746]/10">
-                    MANIFEST
+                    Add
                   </button>
                </form>
 

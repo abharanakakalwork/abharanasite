@@ -12,53 +12,97 @@ async function getHandler(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type');
     const status = searchParams.get('status');
+    const search = searchParams.get('search');
+    
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    
+    // Setup base queries for Counting
+    let modernCountQuery = supabaseAdmin.from('bookings').select('*', { count: 'exact', head: true });
+    let legacyCountQuery = supabaseAdmin.from('yoga_bookings').select('*', { count: 'exact', head: true });
 
-    // 1. Fetch from unified bookings
-    let unifiedQuery = supabaseAdmin
-      .from('bookings')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (type && type !== 'all') {
-      unifiedQuery = unifiedQuery.eq('booking_type', type);
+    // Apply filters to modern
+    if (type && type !== 'all') modernCountQuery = modernCountQuery.eq('booking_type', type);
+    if (status && status !== 'all') modernCountQuery = modernCountQuery.eq('payment_status', status);
+    if (search) {
+      modernCountQuery = modernCountQuery.or(`user_name.ilike.%${search}%,user_email.ilike.%${search}%,payment_reference.ilike.%${search}%`);
     }
-    if (status && status !== 'all') {
-      unifiedQuery = unifiedQuery.eq('payment_status', status);
-    }
 
-    const { data: unifiedData, error: unifiedError } = await unifiedQuery;
-    if (unifiedError) throw unifiedError;
-
-    // 2. Fetch from legacy yoga_bookings if type is 'all' or 'yoga'
-    let legacyYogaData: any[] = [];
-    if (!type || type === 'all' || type === 'yoga') {
-        let legacyQuery = supabaseAdmin
-            .from('yoga_bookings')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (status && status !== 'all') {
-            legacyQuery = legacyQuery.eq('payment_status', status);
-        }
-
-        const { data, error } = await legacyQuery;
-        if (!error && data) {
-            legacyYogaData = data.map(b => ({
-                ...b,
-                booking_type: 'yoga',
-                reference_id: b.session_id,
-                amount: b.base_amount,
-                is_legacy: true 
-            }));
+    // Apply filters to legacy
+    if (type && type !== 'all' && type !== 'yoga') {
+       // Legacy is only 'yoga'
+       legacyCountQuery = legacyCountQuery.eq('id', 'impossible_id'); // zero results
+    } else {
+        if (status && status !== 'all') legacyCountQuery = legacyCountQuery.eq('payment_status', status);
+        if (search) {
+            legacyCountQuery = legacyCountQuery.or(`user_name.ilike.%${search}%,user_email.ilike.%${search}%,payment_reference.ilike.%${search}%`);
         }
     }
 
-    // 3. Merge and Sort
-    const allBookings = [...(unifiedData || []), ...legacyYogaData].sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+    // Get Counts
+    const [{ count: modernCount, error: mErr }, { count: legacyCount, error: lErr }] = await Promise.all([
+        modernCountQuery,
+        legacyCountQuery
+    ]);
 
-    return NextResponse.json({ success: true, data: allBookings });
+    if (mErr) throw mErr;
+    if (lErr) throw lErr;
+
+    const N1 = modernCount || 0;
+    const N2 = legacyCount || 0;
+    const total = N1 + N2;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+
+    let results: any[] = [];
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit - 1;
+
+    // Fetch from modern if overlap
+    if (startIndex < N1) {
+       let mQuery = supabaseAdmin.from('bookings').select('*').order('created_at', { ascending: false });
+       if (type && type !== 'all') mQuery = mQuery.eq('booking_type', type);
+       if (status && status !== 'all') mQuery = mQuery.eq('payment_status', status);
+       if (search) mQuery = mQuery.or(`user_name.ilike.%${search}%,user_email.ilike.%${search}%,payment_reference.ilike.%${search}%`);
+       
+       mQuery = mQuery.range(startIndex, Math.min(endIndex, N1 - 1));
+       const { data } = await mQuery;
+       if (data) results = results.concat(data);
+    }
+
+    // Fetch from legacy if overlap
+    if (endIndex >= N1) {
+       const legacyStart = Math.max(0, startIndex - N1);
+       const legacyEnd = endIndex - N1;
+
+       if ((!type || type === 'all' || type === 'yoga')) {
+           let lQuery = supabaseAdmin.from('yoga_bookings').select('*').order('created_at', { ascending: false });
+           if (status && status !== 'all') lQuery = lQuery.eq('payment_status', status);
+           if (search) lQuery = lQuery.or(`user_name.ilike.%${search}%,user_email.ilike.%${search}%,payment_reference.ilike.%${search}%`);
+           
+           lQuery = lQuery.range(legacyStart, legacyEnd);
+           const { data } = await lQuery;
+           if (data) {
+               results = results.concat(data.map((b: any) => ({
+                   ...b,
+                   booking_type: 'yoga',
+                   reference_id: b.session_id,
+                   amount: b.base_amount,
+                   is_legacy: true 
+               })));
+           }
+       }
+    }
+
+    return NextResponse.json({ 
+        success: true, 
+        data: results,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages
+        }
+    });
   } catch (err: any) {
     console.error('[Bookings List Error]:', err);
     return NextResponse.json({ error: 'Failed to fetch bookings', details: err.message }, { status: 500 });

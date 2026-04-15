@@ -116,7 +116,7 @@ export default function AdminPages() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-5xl font-serif font-bold tracking-tight text-[#4a3b32]">Static Pages</h1>
+          <h1 className="text-5xl font-serif font-bold tracking-tight text-[#4a3b32]">Site Pages</h1>
           <p className="mt-3 text-[#a55a3d]/70 italic text-lg">Curate the foundational truths and legal tapestries of your digital sanctuary.</p>
         </motion.div>
         
@@ -265,4 +265,3 @@ export default function AdminPages() {
     </div>
   );
 }
-

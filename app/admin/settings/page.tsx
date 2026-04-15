@@ -112,9 +112,9 @@ export default function SettingsPage() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32] flex items-center">
           <Settings className="mr-4 h-8 w-8 text-[#bc6746]" />
-          Portal Configurations
+          Admin Settings
         </h1>
-        <p className="mt-2 text-[#a55a3d]/70 ml-12">Manage your administrative energy and session frequencies.</p>
+        <p className="mt-2 text-[#a55a3d]/70 ml-12">Manage your account and active login sessions.</p>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -141,7 +141,7 @@ export default function SettingsPage() {
            <GlassCard delay={0.2} className="border-[#bc6746]/20">
               <h3 className="text-sm font-bold text-[#4a3b32] mb-6 uppercase tracking-widest flex items-center">
                  <Lock className="w-4 h-4 mr-2" />
-                 Energy Shield (Security)
+                 Security
               </h3>
               <div className="space-y-4">
                  <p className="text-md text-[#a55a3d]/70 italic leading-relaxed">
@@ -161,7 +161,7 @@ export default function SettingsPage() {
                  <div>
                     <h3 className="text-xl font-bold text-[#4a3b32] uppercase tracking-widest flex items-center">
                        <Smartphone className="w-5 h-5 mr-3 text-[#bc6746]" />
-                       Active Dimensions (Sessions)
+                       Active Sessions
                     </h3>
                     <p className="text-sm text-[#a55a3d]/50 mt-1 italic">Manage your active presence across devices (Max 5).</p>
                  </div>
@@ -170,7 +170,7 @@ export default function SettingsPage() {
                    disabled={isRevokingAll}
                    className="px-4 py-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/20 transition-all"
                  >
-                    DISSOLVE ALL
+                    LOG OUT ALL
                  </button>
               </div>
 
@@ -238,7 +238,7 @@ export default function SettingsPage() {
            className="flex items-center space-x-3 px-12 py-4 rounded-2xl bg-white border border-[#f1e4da] text-[#a55a3d]/70 font-bold hover:text-red-600 hover:border-red-500/20 hover:bg-red-500/5 transition-all uppercase tracking-[0.2em] shadow-xl group active:scale-95 shadow-[#bc6746]/5"
          >
             <LogOut className="h-5 w-5 transition-transform group-hover:translate-x-2" />
-            <span>Terminate Current Dimension (Logout)</span>
+            <span>Log Out</span>
          </button>
       </div>
 

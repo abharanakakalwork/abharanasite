@@ -4,14 +4,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { GlassCard } from '@/components/admin/GlassCard';
 import { yogaService, mediaService } from '@/lib/api/client';
 import { 
-  Calendar as CalendarIcon, 
   Clock, 
   Plus, 
   Trash2, 
-  Users, 
-  Link as LinkIcon,
-  Search,
-  CheckCircle,
   AlertCircle,
   Loader2,
   CalendarDays,
@@ -20,14 +15,12 @@ import {
   X,
   CreditCard,
   Image as ImageIcon,
-  ThumbsUp,
-  ThumbsDown,
-  RefreshCw
+  RefreshCw,
+  Link as LinkIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { Calendar } from '@/components/ui/Calendar';
-import { SlotSelector } from '@/components/booking/SlotSelector';
 import { cn, formatDateLocal, formatTime12h } from '@/lib/utils';
 import { useYogaRealtime } from '@/lib/hooks/useYogaRealtime';
 import { AdminTable } from '@/components/admin/AdminTable';
@@ -80,6 +73,14 @@ interface Booking {
   created_at: string;
   yoga_sessions: Session;
 }
+
+const ADMIN_TABS: Array<'availability' | 'offerings' | 'payment'> = ['availability', 'offerings', 'payment'];
+const TAB_LABELS: Record<(typeof ADMIN_TABS)[number], string> = {
+  availability: 'Schedule',
+  offerings: 'Class Types',
+  payment: 'Payments',
+};
+const OFFERING_PRICE_FIELDS = ['single_price', 'package_5_price', 'package_10_price', 'package_15_price'] as const;
 
 export default function OnlineSessionsAdmin() {
   const [offerings, setOfferings] = useState<Offering[]>([]);
@@ -259,8 +260,11 @@ export default function OnlineSessionsAdmin() {
       await yogaService.sessions.create(payload);
       toast.success('Sanctuary slot synchronized');
       fetchData();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to create slot');
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { error?: string } } }).response?.data?.error
+        : undefined;
+      toast.error(message || 'Failed to create slot');
     }
   };
 
@@ -326,6 +330,21 @@ export default function OnlineSessionsAdmin() {
     return exceptions.some(e => e.exception_date === dateStr && e.is_blocked);
   }, [selectedDate, exceptions]);
 
+  const selectedDateLabel = useMemo(() => {
+    if (!selectedDate) return '';
+    return selectedDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }, [selectedDate]);
+
+  const selectedDateSummary = useMemo(() => {
+    if (isBlocked) return 'Date is currently blocked from accepting bookings.';
+    const totalBookings = activeSessions.reduce((sum, slot) => sum + slot.booked_count, 0);
+    return `${activeSessions.length} Active Time Slot${activeSessions.length === 1 ? '' : 's'} | ${totalBookings} Total Booking${totalBookings === 1 ? '' : 's'} | Date is accepting bookings.`;
+  }, [activeSessions, isBlocked]);
+
 
 
   const handleUpdatePaymentSettings = async (e: React.FormEvent) => {
@@ -387,8 +406,8 @@ export default function OnlineSessionsAdmin() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="flex items-center gap-6">
           <div>
-            <h1 className="text-4xl font-serif text-[#4a3b32] tracking-tighter uppercase italic">Classes Dashboard</h1>
-            <p className="mt-2 text-[#a55a3d]/70 max-w-md text-sm italic">Verification, availability management, and class configuration.</p>
+            <h1 className="text-4xl font-serif text-[#4a3b32] tracking-tighter uppercase italic">Yoga Classes</h1>
+            <p className="mt-2 text-[#a55a3d]/70 max-w-md text-sm italic">Manage class dates, class types, and payment settings.</p>
           </div>
           <button 
             onClick={fetchData} 
@@ -401,16 +420,16 @@ export default function OnlineSessionsAdmin() {
         </div>
         
         <div className="flex p-1 bg-white/40 backdrop-blur-md rounded-2xl border border-[#f1e4da] shadow-sm overflow-hidden overflow-x-auto max-w-full">
-           {['availability', 'offerings', 'payment'].map((tab) => (
+           {ADMIN_TABS.map((tab) => (
              <button 
                 key={tab}
-                onClick={() => setActiveTab(tab as any)}
+                onClick={() => setActiveTab(tab)}
                 className={cn(
                     "px-4 md:px-5 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest relative whitespace-nowrap",
                     activeTab === tab ? 'bg-[#bc6746] text-white shadow-lg shadow-[#bc6746]/20' : 'text-[#a55a3d]/50 hover:text-[#bc6746] hover:bg-white/40'
                 )}
              >
-                {tab}
+                {TAB_LABELS[tab]}
              </button>
            ))}
         </div>
@@ -429,7 +448,7 @@ export default function OnlineSessionsAdmin() {
              <div className="lg:col-span-4">
                 <GlassCard className="p-0 overflow-hidden border-[#bc6746]/10">
                    <div className="bg-[#bc6746]/5 p-6 border-b border-[#f1e4da]">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#bc6746]">Visual Identification</h4>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#bc6746]">QR Code</h4>
                    </div>
                    <div className="p-8">
                       {paymentForm.qr_image_url ? (
@@ -464,7 +483,7 @@ export default function OnlineSessionsAdmin() {
                 <GlassCard className="p-10 border-[#bc6746]/10">
                    <form onSubmit={handleUpdatePaymentSettings} className="space-y-8">
                       <div className="flex items-center justify-between pb-6 border-b border-[#f1e4da]">
-                         <h3 className="text-2xl font-serif text-[#4a3b32] italic uppercase">Financial Controls</h3>
+                         <h3 className="text-2xl font-serif text-[#4a3b32] italic uppercase">Payment Settings</h3>
                          <CreditCard className="w-6 h-6 text-[#bc6746]/30" />
                       </div>
 
@@ -522,8 +541,8 @@ export default function OnlineSessionsAdmin() {
                                <ShieldCheck className="w-5 h-5" />
                             </div>
                             <div>
-                               <p className="text-xs font-black uppercase tracking-widest text-[#4a3b32]">Payment Acceptance</p>
-                               <p className="text-[10px] text-[#bc6746]/60 italic font-serif">Toggle visibility for manual payment flow</p>
+                               <p className="text-xs font-black uppercase tracking-widest text-[#4a3b32]">Accept Payments</p>
+                               <p className="text-[10px] text-[#bc6746]/60 italic font-serif">Turn the manual payment option on or off</p>
                             </div>
                          </div>
                          <button 
@@ -547,7 +566,7 @@ export default function OnlineSessionsAdmin() {
                          className="w-full py-5 bg-[#bc6746] text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.4em] shadow-xl shadow-[#bc6746]/20 transition-all hover:bg-[#a55a3d] active:scale-95 flex items-center justify-center gap-3"
                       >
                          {actioningId === 'payment_update' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                         Synchronize Payment Settings
+                         Save Payment Settings
                       </button>
                    </form>
                 </GlassCard>
@@ -562,109 +581,142 @@ export default function OnlineSessionsAdmin() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start"
+            className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(26rem,0.95fr)] xl:items-start"
           >
-            <div className="xl:col-span-7">
+            <div>
                <Calendar 
                  selectedDate={selectedDate}
                  onDateSelect={setSelectedDate}
                  availabilityData={{ sessions, exceptions }}
                  isAdmin
+                 className="min-h-[42rem]"
                />
             </div>
 
-            <div className="xl:col-span-5 space-y-8">
-                <GlassCard className="border-[#bc6746]/10 p-10">
-                    <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#f1e4da]">
+            <div className="space-y-6">
+                <GlassCard className="overflow-hidden border-[#d8c6b7] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.98),_rgba(248,242,235,0.96)_48%,_rgba(244,234,224,0.92))] p-0 shadow-[0_20px_50px_rgba(98,71,50,0.08)]">
+                    <div className="p-6 sm:p-7">
+                    <div className="mb-6 flex items-start justify-between gap-4 border-b border-[#eadcd0] pb-5">
                         <div>
-                            <h2 className="text-2xl font-serif text-[#4a3b32] uppercase tracking-tighter">
-                                {selectedDate?.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}
+                            <h2 className="text-[2rem] font-serif leading-none tracking-tight text-[#2f221a]">
+                                {selectedDateLabel}
                             </h2>
-                            <p className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/40">Control Station</p>
+                            <p className="mt-2 text-sm text-[#6f5645]">
+                              {selectedDateSummary}
+                            </p>
                         </div>
-                        <CalendarDays className="w-6 h-6 text-[#bc6746]/40" />
+                        <CalendarDays className="mt-1 h-5 w-5 text-[#7a5a48]" />
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-6">
                         {/* Status Toggle */}
                         <div className={cn(
-                            "p-6 rounded-[30px] border-2 transition-all flex items-center justify-between",
-                            isBlocked ? "border-red-100 bg-red-50/20" : "border-green-100 bg-green-50/20"
+                            "rounded-[24px] border bg-white/75 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-all",
+                            isBlocked ? "border-[#e6c7c7]" : "border-[#1d6b45]/30"
                         )}>
-                            <div className="flex items-center space-x-4">
-                                {isBlocked ? (
-                                    <div className="p-3 bg-red-500 rounded-2xl text-white shadow-xl shadow-red-500/20"><Ban className="w-5 h-5" /></div>
-                                ) : (
-                                    <div className="p-3 bg-green-500 rounded-2xl text-white shadow-xl shadow-green-500/20"><ShieldCheck className="w-5 h-5" /></div>
-                                )}
-                                <div>
-                                    <p className="text-sm font-black text-[#4a3b32] uppercase tracking-wide">{isBlocked ? 'Date Blocked' : 'Date Available'}</p>
-                                    <p className="text-[9px] text-[#a55a3d]/50 font-black uppercase tracking-widest">{isBlocked ? 'Manual Override' : 'Accepting Slots'}</p>
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center space-x-4">
+                                    {isBlocked ? (
+                                        <div className="rounded-2xl bg-[#8f3d2e] p-3 text-white shadow-lg shadow-[#8f3d2e]/20"><Ban className="h-5 w-5" /></div>
+                                    ) : (
+                                        <div className="rounded-2xl bg-[#1d6b45] p-3 text-white shadow-lg shadow-[#1d6b45]/20"><ShieldCheck className="h-5 w-5" /></div>
+                                    )}
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#6f5645]">Date Active</p>
+                                        <p className="mt-1 text-base font-semibold text-[#2f221a]">{isBlocked ? 'Date blocked for bookings' : 'Date available for bookings'}</p>
+                                    </div>
                                 </div>
+                                <button 
+                                    onClick={toggleDateLock}
+                                    className={cn(
+                                        "rounded-2xl border px-4 py-3 text-[10px] font-black uppercase tracking-[0.22em] transition-all",
+                                        isBlocked ? "border-[#1d6b45]/20 bg-white text-[#1d6b45]" : "border-[#8f3d2e]/20 bg-white text-[#8f3d2e]"
+                                    )}
+                                >
+                                    {isBlocked ? 'Make Available' : 'Block Date'}
+                                </button>
                             </div>
-                            <button 
-                                onClick={toggleDateLock}
-                                className={cn(
-                                    "px-4 py-3 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] transition-all",
-                                    isBlocked ? "bg-white text-green-600 border border-green-200" : "bg-white text-red-500 border border-red-200"
-                                )}
-                            >
-                                {isBlocked ? 'Make Available' : 'Block Date'}
-                            </button>
                         </div>
 
                         {/* Existing Slots */}
                         {!isBlocked && (
                             <div className="space-y-5">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#a55a3d]/40 pl-1 italic">Active Time Slots</h4>
+                                <div className="space-y-1">
+                                  <h4 className="text-[1.55rem] font-serif text-[#2f221a]">Active Time Slots ({activeSessions.length})</h4>
+                                  <p className="text-sm text-[#7f6654]">Review availability, capacity, and booking state for every live class on this date.</p>
+                                </div>
                                 <div className="space-y-4">
                                     {activeSessions.length > 0 ? activeSessions.map(slot => {
                                         const now = new Date();
                                         const sessionStart = new Date(`${slot.session_date}T${slot.start_time}`);
                                         const sessionEnd = new Date(sessionStart.getTime() + (slot.duration_minutes || 60) * 60000);
                                         const isCompleted = now > sessionEnd;
+                                        const occupancy = slot.capacity > 0 ? Math.min(100, Math.round((slot.booked_count / slot.capacity) * 100)) : 0;
 
                                         return (
                                         <div key={slot.id} className={cn(
-                                            "flex flex-col p-6 bg-white/40 rounded-3xl border transition-all space-y-4",
-                                            slot.is_blocked || slot.status === 'cancelled' ? "border-red-200 bg-red-50/10 grayscale-[0.5]" : "border-[#f1e4da] hover:bg-white/80"
+                                            "space-y-4 rounded-[24px] border bg-white/85 p-4 shadow-[0_12px_30px_rgba(98,71,50,0.06)] transition-all",
+                                            slot.is_blocked || slot.status === 'cancelled' ? "border-[#e4c7c2] bg-[#fff7f5]" : "border-[#eadcd0]"
                                         )}>
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center space-x-5">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex items-start space-x-4">
                                                     <div className={cn(
-                                                        "p-3 rounded-2xl",
-                                                        slot.is_blocked ? "bg-red-500/10 text-red-500" : (isCompleted ? "bg-gray-100 text-gray-400" : "bg-[#bc6746]/5 text-[#bc6746]")
+                                                        "rounded-2xl p-3",
+                                                        slot.is_blocked ? "bg-[#f5dedd] text-[#8f3d2e]" : (isCompleted ? "bg-[#ece8e3] text-[#8f8378]" : "bg-[#f5e2d7] text-[#bc6746]")
                                                     )}>
                                                         {slot.is_blocked ? <Ban className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                                                     </div>
-                                                    <div>
-                                                        <p className="text-md font-bold text-[#4a3b32] tracking-tighter">
+                                                    <div className="space-y-2">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                          <p className="text-base font-semibold tracking-tight text-[#2f221a]">
                                                             {formatTime12h(slot.start_time)}
-                                                            {slot.is_blocked && <span className="ml-2 text-[8px] px-2 py-0.5 bg-red-100 text-red-600 rounded-full font-black uppercase tracking-widest">Blocked</span>}
-                                                            {isCompleted && !slot.is_blocked && <span className="ml-2 text-[8px] px-2 py-0.5 bg-gray-200 text-gray-500 rounded-full font-black uppercase tracking-widest">Completed</span>}
-                                                        </p>
-                                                        <p className="text-[10px] text-[#bc6746]/60 font-black uppercase tracking-widest">{slot.yoga_offerings?.title}</p>
+                                                          </p>
+                                                          {slot.is_blocked && <span className="rounded-full bg-[#f9dfda] px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-[#8f3d2e]">Blocked</span>}
+                                                          {isCompleted && !slot.is_blocked && <span className="rounded-full bg-[#ece8e3] px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-[#6b635a]">Completed</span>}
+                                                        </div>
+                                                        <div className="flex flex-wrap items-center gap-2 text-sm text-[#4f3d30]">
+                                                          <span>{slot.yoga_offerings?.title}</span>
+                                                          <span className="rounded-full border border-[#d9ccc2] px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-[#7f6654]">
+                                                            {slot.status}
+                                                          </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                          <div className="h-2.5 w-28 overflow-hidden rounded-full bg-[#eddccf]">
+                                                            <div className="h-full rounded-full bg-[#bc6746]" style={{ width: `${occupancy}%` }} />
+                                                          </div>
+                                                          <p className="text-[11px] text-[#6f5645]">{slot.booked_count} booked / {slot.capacity} capacity</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs font-black text-[#4a3b32]">{slot.booked_count} / {slot.capacity}</p>
-                                                    <p className="text-[9px] text-[#a55a3d]/40 uppercase tracking-widest font-black italic">Bookings</p>
+                                                <div className="rounded-2xl border border-[#eadcd0] bg-[#fbf7f2] px-3 py-2 text-right">
+                                                    <p className="text-xs font-black text-[#2f221a]">{slot.booked_count} / {slot.capacity}</p>
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Bookings</p>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center justify-between pt-4 border-t border-[#f1e4da]/50">
+                                            <div className="rounded-[20px] border border-[#efe3d9] bg-[#fcfaf7] px-4 py-3 text-[11px] text-[#6f5645]">
+                                              Local System Time: {now.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}, {selectedDateLabel}
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#efe3d9] pt-4">
                                                 <div className="flex gap-4">
                                                     <div className="space-y-0.5">
-                                                        <p className="text-[8px] text-[#a55a3d]/40 font-black uppercase tracking-widest leading-none">Duration</p>
-                                                        <p className="text-[10px] font-bold text-[#4a3b32]">{slot.duration_minutes}m</p>
+                                                        <p className="text-[8px] font-black uppercase tracking-widest leading-none text-[#9b7f69]">Duration</p>
+                                                        <p className="text-[10px] font-bold text-[#2f221a]">{slot.duration_minutes}m</p>
                                                     </div>
                                                     <div className="space-y-0.5">
-                                                        <p className="text-[8px] text-[#a55a3d]/40 font-black uppercase tracking-widest leading-none">Cooldown</p>
-                                                        <p className="text-[10px] font-bold text-[#4a3b32]">{slot.cooldown_minutes}m</p>
+                                                        <p className="text-[8px] font-black uppercase tracking-widest leading-none text-[#9b7f69]">Cooldown</p>
+                                                        <p className="text-[10px] font-bold text-[#2f221a]">{slot.cooldown_minutes}m</p>
+                                                    </div>
+                                                    <div className="space-y-0.5">
+                                                        <p className="text-[8px] font-black uppercase tracking-widest leading-none text-[#9b7f69]">Meeting Link</p>
+                                                        <a href={slot.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[10px] font-bold text-[#bc6746] hover:underline">
+                                                          <LinkIcon className="h-3 w-3" /> Open
+                                                        </a>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex gap-2">
+                                                <div className="flex flex-wrap gap-2">
                                                     <button 
                                                         onClick={() => {
                                                             setModalState(prev => ({
@@ -712,7 +764,7 @@ export default function OnlineSessionsAdmin() {
                                                                 }
                                                             }));
                                                         }}
-                                                        className="px-3 py-2 bg-white border border-[#f1e4da] text-[#bc6746] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#bc6746] hover:text-white transition-all shadow-sm flex items-center gap-2"
+                                                        className="flex items-center gap-2 rounded-xl border border-[#eadcd0] bg-white px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[#6f5645] transition-all hover:border-[#bc6746] hover:bg-[#bc6746] hover:text-white"
                                                     >
                                                         <RefreshCw className="w-3 h-3" /> Reschedule
                                                     </button>
@@ -751,11 +803,11 @@ export default function OnlineSessionsAdmin() {
                                                                 }
                                                             }
                                                         }}
-                                                        className="p-3 text-[#bc6746] hover:bg-[#bc6746]/5 transition-colors bg-white rounded-xl border border-[#f1e4da] shadow-sm"
+                                                        className="rounded-xl border border-[#eadcd0] bg-white p-3 text-[#6f5645] transition-colors hover:bg-[#f5e2d7]"
                                                     >
                                                         {slot.is_blocked ? <ShieldCheck className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                                                     </button>
-                                                    <button onClick={() => handleDeleteSession(slot.id)} className="p-3 text-[#f1e4da] hover:text-red-500 transition-colors bg-white rounded-xl border border-[#f1e4da] shadow-sm">
+                                                    <button onClick={() => handleDeleteSession(slot.id)} className="rounded-xl border border-[#eadcd0] bg-white p-3 text-[#a48876] transition-colors hover:bg-[#fff0ec] hover:text-red-500">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
                                                 </div>
@@ -763,8 +815,9 @@ export default function OnlineSessionsAdmin() {
                                         </div>
                                         );
                                     }) : (
-                                        <div className="text-center py-10 border-2 border-dashed border-[#f1e4da] rounded-3xl opacity-30 italic text-xs uppercase tracking-widest font-black">
-                                            Empty Field
+                                        <div className="rounded-[24px] border border-dashed border-[#dbc8b8] bg-white/55 px-6 py-10 text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#8e725d]">No Active Slots</p>
+                                            <p className="mt-2 text-sm italic text-[#7f6654]">Create a new time slot below to start accepting bookings on this date.</p>
                                         </div>
                                     )}
                                 </div>
@@ -773,76 +826,96 @@ export default function OnlineSessionsAdmin() {
 
                         {/* Create Slot Form */}
                         {!isBlocked && (
-                            <div className="pt-8 border-t border-[#f1e4da]">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#bc6746] pl-1 mb-6">Create New Slot</h4>
+                            <div className="border-t border-[#eadcd0] pt-6">
+                                <div className="mb-5 flex items-start justify-between gap-4">
+                                  <div>
+                                    <h4 className="text-[1.45rem] font-serif text-[#2f221a]">Add a New Time Slot</h4>
+                                    <p className="text-sm text-[#7f6654]">Configure format, start hour, duration, cooldown, and meeting details.</p>
+                                  </div>
+                                  {isPastSlot && (
+                                    <div className="rounded-2xl bg-[#f5ded7] px-3 py-2 text-right text-[10px] text-[#8f3d2e]">
+                                      <p className="font-black uppercase tracking-widest">Past Slot</p>
+                                      <p className="mt-1 max-w-[14rem] text-[11px] normal-case">Selected time is before the current local system time.</p>
+                                    </div>
+                                  )}
+                                </div>
                                 <form onSubmit={handleCreateSlot} className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-5">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)_9rem]">
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Class Format</label>
+                                            <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Class Format</label>
                                             <select 
                                                 value={slotForm.offering_id}
                                                 onChange={e => setSlotForm({ ...slotForm, offering_id: e.target.value })}
-                                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-5 py-4 text-[13px] text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none appearance-none font-serif italic"
+                                                className="w-full appearance-none rounded-2xl border border-[#dccbbd] bg-white px-4 py-3 text-[13px] text-[#2f221a] outline-none ring-[#bc6746] transition focus:ring-1"
                                             >
                                                 {offerings.map(o => <option key={o.id} value={o.id}>{o.title}</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Start Hour</label>
+                                            <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Start Hour</label>
                                             <input 
                                                 type="time"
                                                 value={slotForm.start_time}
                                                 onChange={e => setSlotForm({ ...slotForm, start_time: e.target.value })}
-                                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-5 py-4 text-[13px] text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
+                                                className="w-full rounded-2xl border border-[#dccbbd] bg-white px-4 py-3 text-[13px] text-[#2f221a] outline-none ring-[#bc6746] transition focus:ring-1"
                                             />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Status</label>
+                                            <div className={cn(
+                                                "rounded-2xl border px-4 py-3 text-center text-[10px] font-black uppercase tracking-[0.2em]",
+                                                isPastSlot ? "border-[#e4c7c2] bg-[#fff0ec] text-[#8f3d2e]" : "border-[#d7ccb8] bg-[#fbf7f2] text-[#6f5645]"
+                                            )}>
+                                                {isPastSlot ? 'Past' : 'Ready'}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Duration (Min)</label>
+                                            <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Duration (Min)</label>
                                             <input 
                                                 type="number"
                                                 value={slotForm.duration_minutes}
                                                 onChange={e => setSlotForm({ ...slotForm, duration_minutes: Number(e.target.value) })}
-                                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-5 py-4 text-[13px] text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
+                                                className="w-full rounded-2xl border border-[#dccbbd] bg-white px-4 py-3 text-[13px] text-[#2f221a] outline-none ring-[#bc6746] transition focus:ring-1"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Cooldown (Min)</label>
+                                            <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Cooldown (Min)</label>
                                             <input 
                                                 type="number"
                                                 value={slotForm.cooldown_minutes}
                                                 onChange={e => setSlotForm({ ...slotForm, cooldown_minutes: Number(e.target.value) })}
-                                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-5 py-4 text-[13px] text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
+                                                className="w-full rounded-2xl border border-[#dccbbd] bg-white px-4 py-3 text-[13px] text-[#2f221a] outline-none ring-[#bc6746] transition focus:ring-1"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Capacity</label>
+                                            <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Capacity</label>
                                             <input 
                                                 type="number"
                                                 value={slotForm.capacity}
                                                 onChange={e => setSlotForm({ ...slotForm, capacity: Number(e.target.value) })}
-                                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-5 py-4 text-[13px] text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
+                                                className="w-full rounded-2xl border border-[#dccbbd] bg-white px-4 py-3 text-[13px] text-[#2f221a] outline-none ring-[#bc6746] transition focus:ring-1"
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[9px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Meeting Portal Link (Zoom)</label>
+                                        <label className="ml-1 text-[9px] font-black uppercase tracking-widest text-[#8e725d]">Meeting Portal Link</label>
                                         <input 
                                             type="url"
-                                            placeholder="https://zoom.us/j/..."
+                                            placeholder="https://zoom.link"
                                             value={slotForm.meeting_link}
                                             onChange={e => setSlotForm({ ...slotForm, meeting_link: e.target.value })}
-                                            className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-5 py-4 text-[13px] text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none placeholder:italic"
+                                            className="w-full rounded-2xl border border-[#dccbbd] bg-white px-4 py-3 text-[13px] text-[#2f221a] outline-none ring-[#bc6746] transition placeholder:text-[#ad998a] focus:ring-1"
                                         />
                                     </div>
                                     <button 
                                         type="submit"
                                         disabled={isPastSlot}
                                         className={cn(
-                                            "w-full py-5 text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.4em] shadow-xl transition-all flex items-center justify-center gap-3",
-                                            isPastSlot ? "bg-gray-200 cursor-not-allowed text-gray-400" : "bg-[#bc6746] shadow-[#bc6746]/20 active:scale-95"
+                                            "flex w-full items-center justify-center gap-3 rounded-3xl py-4 text-[10px] font-black uppercase tracking-[0.32em] transition-all",
+                                            isPastSlot ? "cursor-not-allowed bg-[#e5e1dc] text-[#9f9890]" : "bg-[#d9dde3] text-[#49443e] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] active:scale-[0.99]"
                                         )}
                                     >
                                         {isPastSlot ? <AlertCircle className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -851,6 +924,13 @@ export default function OnlineSessionsAdmin() {
                                 </form>
                             </div>
                         )}
+                        {isBlocked && (
+                            <div className="rounded-[24px] border border-dashed border-[#dcc9bd] bg-white/50 px-6 py-10 text-center">
+                                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#8e725d]">Date Locked</p>
+                                <p className="mt-2 text-sm text-[#7f6654]">Unblock this date to review existing slots or add new availability.</p>
+                            </div>
+                        )}
+                    </div>
                     </div>
                 </GlassCard>
             </div>
@@ -886,7 +966,7 @@ export default function OnlineSessionsAdmin() {
                   className="flex items-center space-x-2 px-6 py-3 bg-[#bc6746] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#bc6746]/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Create New Offering</span>
+                  <span>Add Class Type</span>
                 </button>
              </div>
 
@@ -1002,7 +1082,7 @@ export default function OnlineSessionsAdmin() {
                 <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-transparent via-[#bc6746] to-transparent" />
                 <div className="flex justify-between items-center mb-10">
                     <div>
-                        <h2 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">{editingOffering ? 'Evolve Offering' : 'New Creation'}</h2>
+                        <h2 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">{editingOffering ? 'Edit Class Type' : 'Add Class Type'}</h2>
                         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#a55a3d]/40 mt-2">Class Logic Configuration</p>
                     </div>
                     <button onClick={() => setIsOfferingModalOpen(false)} className="p-4 border border-[#f1e4da] rounded-2xl hover:bg-[#bc6746]/5 transition-all"><X className="w-6 h-6 text-[#4a3b32]" /></button>
@@ -1057,14 +1137,14 @@ export default function OnlineSessionsAdmin() {
                   </div>
 
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    {['single_price', 'package_5_price', 'package_10_price', 'package_15_price'].map((field) => (
+                    {OFFERING_PRICE_FIELDS.map((field) => (
                         <div key={field} className="space-y-2">
                            <label className="text-[8px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-1">
                                {field === 'single_price' ? 'Standard' : `PK ${field.split('_')[1]}`}
                            </label>
                            <div className="relative">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#bc6746]/40 font-bold">₹</span>
-                            <input type="number" required value={(offeringForm as any)[field]} onChange={e => setOfferingForm({ ...offeringForm, [field]: Number(e.target.value) })} className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-4 pl-9 py-4 font-serif font-black text-[#bc6746] outline-none focus:border-[#bc6746] transition-all"/>
+                            <input type="number" required value={offeringForm[field]} onChange={e => setOfferingForm({ ...offeringForm, [field]: Number(e.target.value) })} className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-4 pl-9 py-4 font-serif font-black text-[#bc6746] outline-none focus:border-[#bc6746] transition-all"/>
                           </div>
                         </div>
                     ))}

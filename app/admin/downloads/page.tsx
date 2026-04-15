@@ -121,7 +121,7 @@ export default function AdminDownloads() {
       <div className="flex items-center justify-between">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <h1 className="text-4xl font-serif font-bold tracking-tight text-[#4a3b32]">Downloads</h1>
-          <p className="mt-2 text-[#a55a3d]/70 italic">Manage wisdom files for the community.</p>
+          <p className="mt-2 text-[#a55a3d]/70 italic">Manage files for users to download.</p>
         </motion.div>
 
         <button 
@@ -132,7 +132,7 @@ export default function AdminDownloads() {
           className="flex items-center space-x-2 rounded-full bg-[#bc6746] px-8 py-3 font-semibold text-white uppercase tracking-widest text-xs shadow-lg shadow-[#bc6746]/20 transition-all hover:bg-[#a55a3d] hover:-translate-y-0.5 active:scale-95"
         >
           <Plus className="h-4 w-4" />
-          <span>New File</span>
+          <span>Add File</span>
         </button>
       </div>
 
@@ -141,7 +141,7 @@ export default function AdminDownloads() {
       ) : downloads.length === 0 ? (
         <GlassCard className="text-center py-20">
           <Download className="w-12 h-12 mx-auto text-[#a55a3d]/30 mb-4" />
-          <p className="text-[#4a3b32] font-serif text-xl mb-2">No files manifested yet</p>
+          <p className="text-[#4a3b32] font-serif text-xl mb-2">No files added yet</p>
           <p className="text-[#a55a3d]/70 italic text-sm">Upload a guide, audio file, or document to get started.</p>
         </GlassCard>
       ) : (
@@ -200,7 +200,7 @@ export default function AdminDownloads() {
               <form onSubmit={handleSubmit} className="p-8 space-y-6">
                  <div>
                     <h2 className="text-2xl font-serif font-bold text-[#4a3b32] uppercase tracking-widest mb-1">
-                       New Spiritual Offering
+                       Add File
                     </h2>
                     <p className="text-sm text-[#a55a3d]/70 italic">Upload a file for the community to download.</p>
                  </div>
@@ -273,7 +273,7 @@ export default function AdminDownloads() {
                     className="px-10 py-3 rounded-full bg-[#bc6746] text-white font-bold shadow-lg shadow-[#bc6746]/20 transition-all hover:bg-[#a55a3d] hover:-translate-y-1 active:scale-95 disabled:opacity-50 flex items-center uppercase tracking-widest text-[10px]"
                   >
                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    Manifest File
+                    Save File
                   </button>
                  </div>
               </form>

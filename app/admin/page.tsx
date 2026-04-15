@@ -118,8 +118,8 @@ export default function DashboardPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32]">Dashboard Overview</h1>
-          <p className="mt-2 text-[#a55a3d]/70">Welcome back to the sanctuary command center.</p>
+          <h1 className="text-4xl font-bold tracking-tight text-[#4a3b32]">Dashboard</h1>
+          <p className="mt-2 text-[#a55a3d]/70">See the latest activity and quick stats.</p>
         </motion.div>
         
         <div className="flex items-center space-x-3 text-sm text-[#a55a3d]/50">
@@ -133,7 +133,7 @@ export default function DashboardPage() {
         <GlassCard delay={0.1}>
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-[#a55a3d]/70 uppercase tracking-widest">Enquiries</p>
+              <p className="text-sm font-medium text-[#a55a3d]/70 uppercase tracking-widest">Messages</p>
               <h3 className="mt-2 text-4xl font-bold text-[#4a3b32]">{stats?.enquiries_count || 0}</h3>
               <p className="mt-2 text-xs text-green-600 flex items-center">
                 <TrendingUp className="h-3 w-3 mr-1" />
@@ -165,8 +165,8 @@ export default function DashboardPage() {
         <GlassCard delay={0.3} className="bg-gradient-to-br from-[#bc6746]/5 to-[#a55a3d]/5">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-bold text-[#4a3b32] uppercase tracking-widest">Premium Content</p>
-              <p className="text-xs text-[#a55a3d]/70">Manage sound sessions & retreats</p>
+              <p className="text-sm font-bold text-[#4a3b32] uppercase tracking-widest">Content</p>
+              <p className="text-xs text-[#a55a3d]/70">Manage audio, events, and retreats</p>
             </div>
             <ArrowUpRight className="h-8 w-8 text-[#bc6746]/20" />
           </div>
@@ -190,8 +190,8 @@ export default function DashboardPage() {
         <div className="lg:col-span-2">
           <GlassCard noPadding delay={0.4} className="h-full">
             <div className="p-6 pb-0">
-              <h3 className="text-lg font-bold text-[#4a3b32]">Activity Pulse</h3>
-              <p className="text-xs text-[#a55a3d]/50 mt-1">Growth of interactions over the last 7 days</p>
+              <h3 className="text-lg font-bold text-[#4a3b32]">Activity</h3>
+              <p className="text-xs text-[#a55a3d]/50 mt-1">Interactions over the last 7 days</p>
             </div>
             <ActivityChart data={MOCK_CHART_DATA} />
           </GlassCard>
@@ -202,7 +202,7 @@ export default function DashboardPage() {
           <div className="mb-8 flex items-center justify-between">
             <div className="flex items-center space-x-2">
                <div className="h-8 w-1 bg-[#bc6746] rounded-full" />
-               <h3 className="text-xl font-bold text-[#4a3b32] tracking-tight">Recent Enquiries</h3>
+               <h3 className="text-xl font-bold text-[#4a3b32] tracking-tight">Recent Messages</h3>
             </div>
             <Link 
               href="/admin/enquiries" 
@@ -264,4 +264,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

@@ -265,10 +265,10 @@ export default function ContactForm() {
             {
               id: "email",
               label: "Email",
-              value: "hi@abharanakakal.com",
+              value: "yoga@abharanakakal.com",
               sub: "Responsive within 24 hours",
               icon: <Mail strokeWidth={1} size={30} />,
-              link: "mailto:hi@abharanakakal.com",
+              link: "mailto:yoga@abharanakakal.com",
             },
             {
               id: "loc",
