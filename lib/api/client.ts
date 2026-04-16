@@ -100,7 +100,7 @@ export const dashboardService = {
 };
 
 export const mediaService = {
-  upload: (file: File, folder: string = 'images') => {
+  upload: (file: File, folder: string = 'images', onProgress?: (pct: number) => void) => {
     // We send the file as a raw binary body to allow streaming in Next.js Edge Runtime.
     // Metadata is passed via custom headers to avoid multipart/form-data parsing overhead.
     return api.post('/media/upload', file, {
@@ -108,6 +108,12 @@ export const mediaService = {
         'Content-Type': file.type || 'application/octet-stream',
         'X-Folder': folder, // Custom header for the target folder
         'X-FileName': encodeURIComponent(file.name) // Custom header for the filename
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percentCompleted);
+        }
       }
     });
   },

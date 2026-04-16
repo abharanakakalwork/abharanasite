@@ -134,23 +134,40 @@ export default function SoundHealingPage() {
     }
   };
 
+  const [audioProgress, setAudioProgress] = useState(0);
+
   const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // 1. Manual Validation: File size under 100MB
+    const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+    if (file.size > MAX_SIZE) {
+      toast.error('Vibration too large (Max 100MB)');
+      e.target.value = ''; // Reset input
+      return;
+    }
     
     setIsUploadingAudio(true);
-    const toastId = toast.loading('Uploading frequency masterpiece...');
+    setAudioProgress(0);
+    const toastId = toast.loading('Initiating frequency bond...');
     
     try {
-      const res = await mediaService.upload(file, 'audio');
+      // 2. Perform streaming upload via Edge Proxy
+      const res = await mediaService.upload(file, 'audio', (progress) => {
+        setAudioProgress(progress);
+      });
+
       if (res.data.success) {
         setFormData(prev => ({ ...prev, audio_url: res.data.url }));
         toast.update(toastId, { render: 'Frequency resonated with storage!', type: 'success', isLoading: false, autoClose: 3000 });
       }
-    } catch (err) {
-      toast.update(toastId, { render: 'Failed to upload audio', type: 'error', isLoading: false, autoClose: 3000 });
+    } catch (err: any) {
+      console.error('[UPLOAD_ERROR]:', err);
+      toast.update(toastId, { render: err.response?.data?.error || 'Failed to upload audio', type: 'error', isLoading: false, autoClose: 3000 });
     } finally {
       setIsUploadingAudio(false);
+      setAudioProgress(0);
     }
   };
 
@@ -423,16 +440,28 @@ export default function SoundHealingPage() {
                       <label className="text-[10px] font-black text-[#a55a3d]/50 uppercase tracking-[0.4em] ml-2 flex items-center">
                         <FileAudio className="h-3 w-3 mr-2" /> Mastered Audio
                       </label>
-                      <div className="relative rounded-2xl border border-[#f1e4da] bg-[#fffdf8] p-4 transition-all hover:border-[#bc6746]/30">
-                        <div className="flex items-center space-x-3">
+                      <div className="relative rounded-2xl border border-[#f1e4da] bg-[#fffdf8] p-4 transition-all hover:border-[#bc6746]/30 overflow-hidden">
+                        {/* Progress Bar Background */}
+                        {isUploadingAudio && (
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${audioProgress}%` }}
+                            className="absolute inset-0 bg-[#bc6746]/5 pointer-events-none"
+                          />
+                        )}
+                        
+                        <div className="flex items-center space-x-3 relative z-10">
                           {isUploadingAudio ? (
-                            <Loader2 className="h-8 w-8 text-[#bc6746] animate-spin" />
+                            <div className="relative flex items-center justify-center">
+                              <Loader2 className="h-8 w-8 text-[#bc6746] animate-spin" />
+                              <span className="absolute text-[8px] font-black">{audioProgress}%</span>
+                            </div>
                           ) : (
                             <Music className={`h-8 w-8 ${formData.audio_url ? 'text-[#bc6746]' : 'text-[#a55a3d]/30'}`} />
                           )}
                           <div className="flex-1 overflow-hidden">
                             <p className="text-[9px] text-[#a55a3d]/70 truncate font-medium italic">
-                              {isUploadingAudio ? 'Bonding with storage...' : (formData.audio_url ? 'Frequency Resonating' : 'Click to bind masterpiece')}
+                              {isUploadingAudio ? `Streaming... ${audioProgress}%` : (formData.audio_url ? 'Frequency Resonating' : 'Click to bind masterpiece (Max 100MB)')}
                             </p>
                             {formData.audio_url && !isUploadingAudio && (
                               <div className="mt-1 flex items-center text-[7px] text-green-600 font-black uppercase tracking-widest">
