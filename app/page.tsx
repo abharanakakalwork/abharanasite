@@ -3,11 +3,13 @@
 import Image from "next/image";
 import Antigravity from "./components/Antaigravity";
 import CircularText from "./components/CircularText";
+import OnlineClassesFloatingButton from "./components/OnlineClassesFloatingButton";
 
 export default function Home() {
 
   return (
     <div className="relative">
+      <OnlineClassesFloatingButton />
       <div
         style={{
           width: "100%",

@@ -10,8 +10,10 @@ export default function Footer() {
   // Hide footer on admin panel
   if (pathname?.startsWith("/admin")) return null;
 
+  const isHomePage = pathname === "/";
+
   return (
-    <footer className="w-full bg-[#f1e4da] relative z-3 px-6 py-16 md:py-24 border-t border-black/5 mt-auto">
+    <footer className={`w-full bg-[#f1e4da] relative z-3 px-6 py-16 md:py-24 border-t border-black/5 mt-auto ${isHomePage ? 'hidden md:block' : ''}`}>
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         {/* SECTION 1 — CLOSING LINE */}
         <div className="text-center mb-16 md:mb-20 flex flex-col items-center">
