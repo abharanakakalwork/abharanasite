@@ -330,9 +330,7 @@ export default function SoundHealingPage() {
                     </div>
                   </div>
 
-                  {/* Right Col - Audio Media Only */}
                   <div className="space-y-6">
-
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-[#a55a3d]/50 uppercase tracking-[0.4em] ml-2 flex items-center">
                         <FileAudio className="h-3 w-3 mr-2" /> Mastered Audio
@@ -367,7 +365,7 @@ export default function SoundHealingPage() {
                           accept="audio/*"
                           onChange={handleAudioUpload}
                           disabled={isUploadingAudio}
-                          className="absolute inset-0 cursor-pointer opacity-0"
+                          className="absolute inset-0 cursor-pointer opacity-0 z-20"
                         />
                       </div>
                     </div>
