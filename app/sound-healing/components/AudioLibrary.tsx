@@ -3,6 +3,13 @@ import { motion, AnimatePresence } from "motion/react";
 import { useRef, useState, useEffect } from "react";
 import { useAudio } from "@/context/AudioContext";
 
+const formatTime = (seconds: number) => {
+  if (isNaN(seconds)) return "00:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
 function WaveformVisualizer({
   playing,
   color = "#bc6746",
@@ -282,6 +289,8 @@ export default function AudioLibrary() {
   const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState<string | null>(null);
   const [progress, setProgress] = useState<Record<string, number>>({});
+  const [duration, setDuration] = useState<Record<string, number>>({});
+  const [currentTime, setCurrentTime] = useState<Record<string, number>>({});
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [sortBy, setSortBy] = useState<string>("Skill Level");
   const [showSort, setShowSort] = useState(false);
@@ -308,8 +317,22 @@ export default function AudioLibrary() {
   const updateProgress = (id: string) => {
     const audio = audioRefs.current[id];
     if (audio) {
-      const p = (audio.currentTime / audio.duration) * 100;
+      const d = audio.duration;
+      const ct = audio.currentTime;
+      const p = (ct / d) * 100;
+      
+      setDuration(prev => ({ ...prev, [id]: isNaN(d) ? 0 : d }));
+      setCurrentTime(prev => ({ ...prev, [id]: ct }));
       setProgress((prev) => ({ ...prev, [id]: isNaN(p) ? 0 : p }));
+    }
+  };
+
+  const handleSeek = (id: string, value: number) => {
+    const audio = audioRefs.current[id];
+    if (audio && audio.duration) {
+      const newTime = (value / 100) * audio.duration;
+      audio.currentTime = newTime;
+      updateProgress(id);
     }
   };
 
@@ -597,16 +620,22 @@ export default function AudioLibrary() {
                 boxShadow: `0 20px 60px rgba(74,59,50,0.15), 0 0 0 1px ${playingTrack.color}20`,
               }}
             >
-              {/* Progress bar */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#f1e4da]">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{
-                    backgroundColor: playingTrack.color,
-                    width: `${progress[playing] || 0}%`,
-                  }}
-                  transition={{ duration: 0.4 }}
-                />
+              {/* Seekable Progress bar */}
+              <div 
+                className="absolute top-0 left-0 right-0 h-1.5 bg-[#f1e4da] cursor-pointer group/mini-seeker"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const val = (x / rect.width) * 100;
+                  handleSeek(playing, val);
+                }}
+              >
+                <div
+                  className="h-full bg-gradient-to-r from-[#bc6746] to-[#e2b9a7] relative transition-all duration-300"
+                  style={{ width: `${progress[playing] || 0}%` }}
+                >
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#4a3b32] shadow-md scale-0 group-hover/mini-seeker:scale-100 transition-transform" />
+                </div>
               </div>
 
               <div className="flex items-center gap-3 px-4 py-3 pt-4">
@@ -629,12 +658,18 @@ export default function AudioLibrary() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#4a3b32] text-xs font-medium truncate mb-0.5">
+                  <p className="text-[#4a3b32] text-xs font-serif italic truncate mb-0.5">
                     {playingTrack.title}
                   </p>
-                  <p className="text-[#4a3b32]/45 text-[10px] font-mono truncate">
-                    {playingTrack.frequency} · {playingTrack.intent}
-                  </p>
+                  <div className="flex items-center gap-1.5 overflow-hidden">
+                    <p className="text-[#4a3b32]/45 text-[9px] font-mono truncate">
+                      {playingTrack.frequency}
+                    </p>
+                    <span className="text-[#4a3b32]/20 text-[9px]">•</span>
+                    <p className="text-[#4a3b32]/60 text-[9px] font-mono whitespace-nowrap">
+                      {formatTime(currentTime[playing] || 0)} / {formatTime(duration[playing] || 0)}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Waveform */}
