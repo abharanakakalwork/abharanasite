@@ -27,9 +27,6 @@ interface SoundSession {
   description: string;
   audio_url: string;
   image_url: string;
-  metadata?: any;
-  intent?: string;
-  frequency?: string;
   duration?: string;
   category?: string;
   color?: string;
@@ -48,9 +45,6 @@ export default function SoundHealingPage() {
     description: '',
     audio_url: '',
     image_url: '',
-    metadata: '',
-    intent: '',
-    frequency: '',
     duration: '',
     category: '',
     color: '#bc6746',
@@ -89,9 +83,6 @@ export default function SoundHealingPage() {
         description: session.description || '',
         audio_url: session.audio_url || '',
         image_url: session.image_url || '',
-        metadata: session.metadata ? JSON.stringify(session.metadata, null, 2) : '',
-        intent: session.intent || '',
-        frequency: session.frequency || '',
         duration: session.duration || '',
         category: session.category || '',
         color: session.color || '#bc6746',
@@ -103,9 +94,6 @@ export default function SoundHealingPage() {
         description: '', 
         audio_url: '', 
         image_url: '',
-        metadata: '',
-        intent: '',
-        frequency: '',
         duration: '',
         category: '',
         color: '#bc6746',
@@ -186,9 +174,6 @@ export default function SoundHealingPage() {
           description: formData.description,
           audio_url: formData.audio_url,
           image_url: formData.image_url,
-          metadata: formData.metadata ? JSON.parse(formData.metadata) : null,
-          intent: formData.intent,
-          frequency: formData.frequency,
           duration: formData.duration,
           category: formData.category,
           color: formData.color,
@@ -342,24 +327,8 @@ export default function SoundHealingPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-black text-[#bc6746] uppercase tracking-widest">Intent</label>
-                        <input 
-                          value={formData.intent}
-                          onChange={e => setFormData({...formData, intent: e.target.value})}
-                          className="w-full rounded-xl border border-[#f1e4da] bg-[#fffdf8] p-3 text-xs text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif italic"
-                          placeholder="Deep Rest"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-black text-[#bc6746] uppercase tracking-widest">Frequency</label>
-                        <input 
-                          value={formData.frequency}
-                          onChange={e => setFormData({...formData, frequency: e.target.value})}
-                          className="w-full rounded-xl border border-[#f1e4da] bg-[#fffdf8] p-3 text-xs text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif italic"
-                          placeholder="528Hz"
-                        />
-                      </div>
+                      
+                      
                       <div className="space-y-2">
                         <label className="text-[9px] font-black text-[#bc6746] uppercase tracking-widest">Duration</label>
                         <input 
@@ -480,17 +449,7 @@ export default function SoundHealingPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#a55a3d]/50 uppercase tracking-[0.4em] ml-2 flex items-center">
-                        Metadata Archive
-                      </label>
-                      <textarea 
-                        value={formData.metadata}
-                        onChange={e => setFormData({...formData, metadata: e.target.value})}
-                        className="w-full h-24 rounded-2xl border border-[#f1e4da] bg-[#fffdf8] p-3 text-[9px] font-mono text-[#a55a3d]/70 focus:ring-1 ring-[#bc6746] outline-none resize-none"
-                        placeholder='{ "focus": "cellular-level" }'
-                      />
-                    </div>
+                    
                   </div>
                 </div>
 

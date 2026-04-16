@@ -427,9 +427,7 @@ export default function BookingsAdmin() {
         {selectedBooking && (
           <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-md sm:p-6">
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+             
               className="relative my-auto w-full max-w-2xl overflow-hidden rounded-[40px] border border-[#f1e4da] bg-[#fffdf8] shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-[#f1e4da] bg-[#bc6746]/5 p-6">
@@ -593,9 +591,7 @@ export default function BookingsAdmin() {
         {isMailModalOpen && selectedBooking && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              
               className="w-full max-w-lg overflow-hidden rounded-[32px] border border-[#f1e4da] bg-white shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-[#f1e4da] bg-[#bc6746]/5 p-6">

@@ -22,7 +22,7 @@ async function postHandler(req: NextRequest) {
     // Wrap the message in a basic HTML template for better presentation
     const htmlBody = `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #f1e4da; border-radius: 20px;">
-        <h2 style="color: #bc6746;">Abharana Kakal Sanctuary</h2>
+        <h2 style="color: #bc6746;">Abharana Kakal</h2>
         <hr style="border: 0.5px solid #f1e4da;" />
         <div style="color: #4a3b32; line-height: 1.6; white-space: pre-wrap;">
           ${message}
