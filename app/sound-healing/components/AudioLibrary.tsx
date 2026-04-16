@@ -382,7 +382,8 @@ export default function AudioLibrary() {
   // Filter + search
   const filtered = tracks.filter((t) => {
     const matchFilter =
-      activeFilter === "All" || (t.category || t.intent) === activeFilter;
+      activeFilter === "All" || 
+      (t.category || t.intent || "Other").toUpperCase() === activeFilter.toUpperCase();
     const q = search.toLowerCase();
     const matchSearch =
       !search ||
@@ -418,18 +419,19 @@ export default function AudioLibrary() {
   // Group by category/intent
   const groups: Record<string, Track[]> = {};
   sorted.forEach((t) => {
-    const key = t.category || t.intent || "Other";
+    const key = (t.category || t.intent || "Other").toUpperCase();
     if (!groups[key]) groups[key] = [];
     groups[key].push(t);
   });
 
   const groupLabels: Record<string, string> = {
-    Foundation: "Foundations & Beginner",
-    "Deep Rest": "Deep Rest & Grounding",
-    Focus: "Advanced Focus & Resonance",
-    Presence: "Presence & Awareness",
-    Grounding: "Grounding Practices",
-    Sleep: "Sleep & Deep Restoration",
+    FOUNDATION: "Foundations & Beginner",
+    "DEEP REST": "Deep Rest & Grounding",
+    FOCUS: "Advanced Focus & Resonance",
+    PRESENCE: "Presence & Awareness",
+    GROUNDING: "Grounding Practices",
+    SLEEP: "Sleep & Deep Restoration",
+    OTHER: "Self Care & Affirmations"
   };
 
   const playingTrack = tracks.find((t) => t.id === playing);
