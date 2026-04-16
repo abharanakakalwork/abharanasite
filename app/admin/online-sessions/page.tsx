@@ -35,9 +35,6 @@ interface Offering {
   description: string;
   duration: string;
   single_price: number;
-  package_5_price: number;
-  package_10_price: number;
-  package_15_price: number;
   image_url?: string;
 }
 
@@ -80,7 +77,7 @@ const TAB_LABELS: Record<(typeof ADMIN_TABS)[number], string> = {
   offerings: 'Class Types',
   payment: 'Payments',
 };
-const OFFERING_PRICE_FIELDS = ['single_price', 'package_5_price', 'package_10_price', 'package_15_price'] as const;
+const OFFERING_PRICE_FIELDS = ['single_price'] as const;
 
 export default function OnlineSessionsAdmin() {
   const [offerings, setOfferings] = useState<Offering[]>([]);
@@ -98,10 +95,7 @@ export default function OnlineSessionsAdmin() {
     title: '',
     description: '',
     duration: '60 Mins',
-    single_price: 500,
-    package_5_price: 2250,
-    package_10_price: 4000,
-    package_15_price: 5500,
+    single_price: 1500,
     image_url: ''
   });
 
@@ -1010,30 +1004,6 @@ export default function OnlineSessionsAdmin() {
                    )
                  },
                  {
-                   header: "PK 5",
-                   accessor: (item) => (
-                     <span className="font-serif font-bold text-[#4a3b32]/60">
-                       ₹{typeof item.package_5_price === 'number' ? item.package_5_price.toFixed(2).replace(/\.00$/, '') : item.package_5_price}
-                     </span>
-                   )
-                 },
-                 {
-                   header: "PK 10",
-                   accessor: (item) => (
-                     <span className="font-serif font-bold text-[#4a3b32]/60">
-                       ₹{typeof item.package_10_price === 'number' ? item.package_10_price.toFixed(2).replace(/\.00$/, '') : item.package_10_price}
-                     </span>
-                   )
-                 },
-                 {
-                   header: "PK 15",
-                   accessor: (item) => (
-                     <span className="font-serif font-bold text-[#4a3b32]/60">
-                       ₹{typeof item.package_15_price === 'number' ? item.package_15_price.toFixed(2).replace(/\.00$/, '') : item.package_15_price}
-                     </span>
-                   )
-                 },
-                 {
                    header: "Actions",
                    className: "text-right",
                    accessor: (item) => (
@@ -1046,9 +1016,6 @@ export default function OnlineSessionsAdmin() {
                              description: item.description,
                              duration: item.duration,
                              single_price: item.single_price,
-                             package_5_price: item.package_5_price,
-                             package_10_price: item.package_10_price,
-                             package_15_price: item.package_15_price,
                              image_url: item.image_url || ''
                            });
                            setIsOfferingModalOpen(true);
@@ -1136,18 +1103,18 @@ export default function OnlineSessionsAdmin() {
                      </div>
                   </div>
 
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    {OFFERING_PRICE_FIELDS.map((field) => (
-                        <div key={field} className="space-y-2">
-                           <label className="text-[8px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-1">
-                               {field === 'single_price' ? 'Standard' : `PK ${field.split('_')[1]}`}
-                           </label>
-                           <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#bc6746]/40 font-bold">₹</span>
-                            <input type="number" required value={offeringForm[field]} onChange={e => setOfferingForm({ ...offeringForm, [field]: Number(e.target.value) })} className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-4 pl-9 py-4 font-serif font-black text-[#bc6746] outline-none focus:border-[#bc6746] transition-all"/>
-                          </div>
-                        </div>
-                    ))}
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/50 ml-2">Standard Price</label>
+                    <div className="relative">
+                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#bc6746] font-serif italic text-2xl">₹</span>
+                      <input 
+                        type="number" 
+                        required 
+                        value={offeringForm.single_price} 
+                        onChange={e => setOfferingForm({ ...offeringForm, single_price: Number(e.target.value) })} 
+                        className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-[30px] px-12 py-5 text-3xl font-serif font-black text-[#bc6746] outline-none focus:border-[#bc6746] transition-all shadow-inner"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex space-x-6 pt-10">

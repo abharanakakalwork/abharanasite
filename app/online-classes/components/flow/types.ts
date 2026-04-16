@@ -4,9 +4,7 @@ export interface Offering {
   description: string;
   duration: string;
   single_price: number;
-  package_5_price: number;
-  package_10_price: number;
-  package_15_price: number;
+  single_price: number;
   image_url?: string;
   upi_id?: string;
   payee_name?: string;
