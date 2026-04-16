@@ -101,11 +101,14 @@ export const dashboardService = {
 
 export const mediaService = {
   upload: (file: File, folder: string = 'images') => {
-    const data = new FormData();
-    data.append('file', file);
-    data.append('folder', folder);
-    return api.post('/media/upload', data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    // We send the file as a raw binary body to allow streaming in Next.js Edge Runtime.
+    // Metadata is passed via custom headers to avoid multipart/form-data parsing overhead.
+    return api.post('/media/upload', file, {
+      headers: { 
+        'Content-Type': file.type || 'application/octet-stream',
+        'X-Folder': folder, // Custom header for the target folder
+        'X-FileName': encodeURIComponent(file.name) // Custom header for the filename
+      }
     });
   },
   purge: (url: string) => api.delete('/media/purge', { data: { url } }),

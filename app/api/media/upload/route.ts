@@ -1,43 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateSessionEdge } from '@/lib/edge-auth';
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '100mb',
-    },
-  },
-};
-import { withAuth } from '@/lib/with-auth';
-import { uploadToBunny } from '@/lib/bunny';
+// IMPORTANT: Set runtime to 'edge' to bypass Vercel's 4.5MB payload limit.
+// Edge Runtime supports unlimited streaming (typically up to 100MB).
+export const runtime = 'edge';
 
 /**
  * POST /api/media/upload
- * Protected: Admin only to upload a single file to Bunny Storage.
+ * Optimized for Edge: Pipes binary stream directly to Bunny Storage.
  */
-async function uploadHandler(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    const folder = (formData.get('folder') as string) || 'images';
-
-    if (!file || typeof file === 'string') {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    // 1. Authenticate using Edge-compatible logic
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized: Missing token' }, { status: 401 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = file.name || `upload-${Date.now()}`;
-    
-    console.log(`[MEDIA_UPLOAD] Uploading: ${fileName} to /${folder}`);
-    const url = await uploadToBunny(buffer, fileName, folder); // uploadToBunny already handles serialization and timestamping if configured, but I added it in lib/bunny correctly.
+    const token = authHeader.split(' ')[1];
+    const admin = await validateSessionEdge(token);
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized: Invalid session' }, { status: 401 });
+    }
 
-    return NextResponse.json({ success: true, url });
+    // 2. Extract metadata from custom headers
+    const folder = req.headers.get('X-Folder') || 'general';
+    const rawFileName = req.headers.get('X-FileName') || `upload-${Date.now()}`;
+    const fileName = decodeURIComponent(rawFileName).replace(/\s+/g, '-');
+
+    // 3. Prepare Bunny Storage details
+    const STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
+    const ACCESS_KEY = process.env.BUNNY_ACCESS_KEY;
+    const PULL_ZONE = process.env.BUNNY_PULL_ZONE;
+
+    if (!STORAGE_ZONE || !ACCESS_KEY || !PULL_ZONE) {
+      console.error('[MEDIA_UPLOAD] Missing Bunny environment variables');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
+    const bunnyUrl = `https://storage.bunnycdn.com/${STORAGE_ZONE}/${folder}/${fileName}`;
+
+    console.log(`[EDGE_UPLOAD] Piping stream for: ${fileName} to /${folder}`);
+
+    // 4. Pipe the request body directly to Bunny Storage via fetch
+    // req.body is a ReadableStream which fetch accepts in the Edge Runtime.
+    const bunnyResponse = await fetch(bunnyUrl, {
+      method: 'PUT',
+      headers: {
+        'AccessKey': ACCESS_KEY,
+        'Content-Type': 'application/octet-stream',
+      },
+      body: req.body, // Direct streaming pipe
+      //@ts-ignore - duplex is required for streaming bodies in some versions of fetch
+      duplex: 'half', 
+    });
+
+    if (!bunnyResponse.ok) {
+      const errorText = await bunnyResponse.text();
+      console.error(`[EDGE_UPLOAD_ERROR] Bunny responded with ${bunnyResponse.status}: ${errorText}`);
+      throw new Error(`Bunny storage upload failed: ${bunnyResponse.statusText}`);
+    }
+
+    const publicUrl = `https://${PULL_ZONE}/${folder}/${fileName}`;
+    return NextResponse.json({ success: true, url: publicUrl });
+
   } catch (err: any) {
-    console.error('Media upload error:', err);
+    console.error('[EDGE_UPLOAD_FATAL]:', err);
     return NextResponse.json({ 
       error: 'Failed to upload media', 
-      details: err.message.replace(/"/g, "'") 
+      details: err.message 
     }, { status: 500 });
   }
 }
-
-export const POST = withAuth(uploadHandler);
