@@ -71,18 +71,17 @@ interface Booking {
   yoga_sessions: Session;
 }
 
-const ADMIN_TABS: Array<'availability' | 'offerings' | 'payment'> = ['availability', 'offerings', 'payment'];
+const ADMIN_TABS: Array<'availability' | 'offerings'> = ['availability', 'offerings'];
 const TAB_LABELS: Record<(typeof ADMIN_TABS)[number], string> = {
   availability: 'Schedule',
   offerings: 'Class Types',
-  payment: 'Payments',
 };
 const OFFERING_PRICE_FIELDS = ['single_price'] as const;
 
 export default function OnlineSessionsAdmin() {
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'availability' | 'offerings' | 'payment'>('availability');
+  const [activeTab, setActiveTab] = useState<'availability' | 'offerings'>('availability');
   
   // Selected Data for Availability Manager
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -108,14 +107,6 @@ export default function OnlineSessionsAdmin() {
     meeting_link: ''
   });
 
-  const [paymentForm, setPaymentForm] = useState({
-    upi_id: '',
-    payee_name: '',
-    qr_image_url: '',
-    instructions: '',
-    gst_percent: 18,
-    is_active: true
-  });
 
   // Modal System State
   const [modalState, setModalState] = useState<{
@@ -143,19 +134,14 @@ export default function OnlineSessionsAdmin() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [sessionsRes, offeringsRes, paymentRes] = await Promise.all([
+      const [sessionsRes, offeringsRes] = await Promise.all([
         yogaService.sessions.list(),
-        yogaService.offerings.list(),
-        yogaService.paymentSettings.get()
+        yogaService.offerings.list()
       ]);
       
       setSessions(sessionsRes.data.data.sessions || []);
       setExceptions(sessionsRes.data.data.exceptions || []);
       setOfferings(offeringsRes.data.data);
-      
-      if (paymentRes.data.success && paymentRes.data.data) {
-        setPaymentForm(paymentRes.data.data);
-      }
       
       if (offeringsRes.data.data.length > 0) {
         setSlotForm(prev => ({ ...prev, offering_id: offeringsRes.data.data[0].id }));
@@ -341,35 +327,6 @@ export default function OnlineSessionsAdmin() {
 
 
 
-  const handleUpdatePaymentSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setActioningId('payment_update');
-    try {
-      await yogaService.paymentSettings.update(paymentForm);
-      toast.success('Payment settings synchronized');
-      fetchData();
-    } catch (err) {
-      toast.error('Failed to update payment settings');
-    } finally {
-      setActioningId(null);
-    }
-  };
-
-  const handleQRUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    setActioningId('qr_upload');
-    try {
-      const res = await mediaService.upload(file, 'payments');
-      setPaymentForm(prev => ({ ...prev, qr_image_url: res.data.url }));
-      toast.success('QR Code uploaded');
-    } catch (err) {
-      toast.error('Failed to upload QR code');
-    } finally {
-      setActioningId(null);
-    }
-  };
 
   const handleOfferingImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -413,160 +370,23 @@ export default function OnlineSessionsAdmin() {
           </button>
         </div>
         
-        <div className="flex p-1 bg-white/40 backdrop-blur-md rounded-2xl border border-[#f1e4da] shadow-sm overflow-hidden overflow-x-auto max-w-full">
-           {ADMIN_TABS.map((tab) => (
-             <button 
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                    "px-4 md:px-5 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest relative whitespace-nowrap",
-                    activeTab === tab ? 'bg-[#bc6746] text-white shadow-lg shadow-[#bc6746]/20' : 'text-[#a55a3d]/50 hover:text-[#bc6746] hover:bg-white/40'
-                )}
-             >
-                {TAB_LABELS[tab]}
-             </button>
-           ))}
-        </div>
+          <div className="flex p-1 bg-white/40 backdrop-blur-md rounded-2xl border border-[#f1e4da] shadow-sm overflow-hidden overflow-x-auto max-w-full">
+             {ADMIN_TABS.map((tab) => (
+               <button 
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                      "px-4 md:px-5 py-2.5 rounded-xl transition-all text-[10px] font-black uppercase tracking-widest relative whitespace-nowrap",
+                      activeTab === tab ? 'bg-[#bc6746] text-white shadow-lg shadow-[#bc6746]/20' : 'text-[#a55a3d]/50 hover:text-[#bc6746] hover:bg-white/40'
+                  )}
+               >
+                  {TAB_LABELS[tab as keyof typeof TAB_LABELS]}
+               </button>
+             ))}
+          </div>
       </div>
 
       <AnimatePresence mode="wait">
-        {/* Tab: Payment Settings */}
-        {activeTab === 'payment' && (
-          <motion.div 
-            key="payment"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
-          >
-             <div className="lg:col-span-4">
-                <GlassCard className="p-0 overflow-hidden border-[#bc6746]/10">
-                   <div className="bg-[#bc6746]/5 p-6 border-b border-[#f1e4da]">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#bc6746]">QR Code</h4>
-                   </div>
-                   <div className="p-8">
-                      {paymentForm.qr_image_url ? (
-                        <div className="relative aspect-square group overflow-hidden rounded-[32px] ring-1 ring-[#bc6746]/10">
-                            <img 
-                                src={paymentForm.qr_image_url} 
-                                alt="QR Code" 
-                                className="w-full h-full object-cover"
-                            />
-                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer select-none">
-                                <RefreshCw className="w-6 h-6 mb-2" />
-                                <span className="text-[8px] font-black uppercase tracking-widest">Swap Code</span>
-                                <input type="file" className="hidden" accept="image/*" onChange={handleQRUpload} />
-                            </label>
-                        </div>
-                      ) : (
-                        <label className="flex aspect-square flex-col items-center justify-center rounded-[32px] bg-[#bc6746]/5 border border-dashed border-[#bc6746]/20 cursor-pointer hover:bg-[#bc6746]/10 transition-colors">
-                            <Plus className="w-8 h-8 text-[#bc6746]/40 mb-2" />
-                            <p className="text-[9px] text-[#bc6746]/60 font-black uppercase tracking-widest">Upload QR Code</p>
-                            <input type="file" className="hidden" accept="image/*" onChange={handleQRUpload} />
-                        </label>
-                      )}
-                      
-                      <p className="mt-6 text-[10px] text-center italic text-[#a55a3d]/40 leading-relaxed">
-                        This QR code will be presented to users during the manual checkout flow for Online Sessions.
-                      </p>
-                   </div>
-                </GlassCard>
-             </div>
-
-             <div className="lg:col-span-8">
-                <GlassCard className="p-10 border-[#bc6746]/10">
-                   <form onSubmit={handleUpdatePaymentSettings} className="space-y-8">
-                      <div className="flex items-center justify-between pb-6 border-b border-[#f1e4da]">
-                         <h3 className="text-2xl font-serif text-[#4a3b32] italic uppercase">Payment Settings</h3>
-                         <CreditCard className="w-6 h-6 text-[#bc6746]/30" />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                         <div className="space-y-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">UPI Identifier</label>
-                             <input 
-                                type="text"
-                                value={paymentForm.upi_id}
-                                onChange={e => setPaymentForm({ ...paymentForm, upi_id: e.target.value })}
-                                placeholder="name@upi"
-                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-6 py-4 text-sm text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
-                             />
-                         </div>
-                         <div className="space-y-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Account Holder Name</label>
-                             <input 
-                                type="text"
-                                value={paymentForm.payee_name}
-                                onChange={e => setPaymentForm({ ...paymentForm, payee_name: e.target.value })}
-                                placeholder="Abharana Sanctuary"
-                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-6 py-4 text-sm text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
-                             />
-                         </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                         <div className="md:col-span-8 space-y-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">Payment Instructions</label>
-                             <textarea 
-                                value={paymentForm.instructions}
-                                onChange={e => setPaymentForm({ ...paymentForm, instructions: e.target.value })}
-                                placeholder="Scan QR and upload snippet of the transaction..."
-                                rows={1}
-                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-6 py-4 text-sm text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif italic"
-                             />
-                         </div>
-                         <div className="md:col-span-4 space-y-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-[#a55a3d]/50 ml-2">GST Percentage (%)</label>
-                             <input 
-                                type="number"
-                                value={paymentForm.gst_percent}
-                                onChange={e => setPaymentForm({ ...paymentForm, gst_percent: Number(e.target.value) })}
-                                className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-2xl px-6 py-4 text-sm text-[#4a3b32] focus:ring-1 ring-[#bc6746] outline-none font-serif"
-                             />
-                         </div>
-                      </div>
-
-                      <div className="flex items-center justify-between p-6 rounded-3xl bg-[#bc6746]/5 border border-[#bc6746]/10">
-                         <div className="flex items-center space-x-4">
-                            <div className={cn(
-                                "p-3 rounded-xl shadow-lg",
-                                paymentForm.is_active ? "bg-green-500 text-white" : "bg-gray-400 text-white"
-                            )}>
-                               <ShieldCheck className="w-5 h-5" />
-                            </div>
-                            <div>
-                               <p className="text-xs font-black uppercase tracking-widest text-[#4a3b32]">Accept Payments</p>
-                               <p className="text-[10px] text-[#bc6746]/60 italic font-serif">Turn the manual payment option on or off</p>
-                            </div>
-                         </div>
-                         <button 
-                            type="button"
-                            onClick={() => setPaymentForm({ ...paymentForm, is_active: !paymentForm.is_active })}
-                            className={cn(
-                                "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out px-0 py-0",
-                                paymentForm.is_active ? 'bg-[#bc6746]' : 'bg-gray-200'
-                            )}
-                         >
-                            <span className={cn(
-                                "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
-                                paymentForm.is_active ? 'translate-x-5' : 'translate-x-0'
-                            )} />
-                         </button>
-                      </div>
-
-                      <button 
-                         type="submit"
-                         disabled={actioningId === 'payment_update'}
-                         className="w-full py-5 bg-[#bc6746] text-white rounded-3xl text-[10px] font-black uppercase tracking-[0.4em] shadow-xl shadow-[#bc6746]/20 transition-all hover:bg-[#a55a3d] active:scale-95 flex items-center justify-center gap-3"
-                      >
-                         {actioningId === 'payment_update' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                         Save Payment Settings
-                      </button>
-                   </form>
-                </GlassCard>
-             </div>
-          </motion.div>
-        )}
 
         {/* Tab 1: Availability Manager */}
         {activeTab === 'availability' && (
@@ -950,9 +770,6 @@ export default function OnlineSessionsAdmin() {
                       description: '',
                       duration: '60 Mins',
                       single_price: 500,
-                      package_5_price: 2250,
-                      package_10_price: 4000,
-                      package_15_price: 5500,
                       image_url: ''
                     });
                     setIsOfferingModalOpen(true);
