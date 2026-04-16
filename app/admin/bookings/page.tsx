@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { GlassCard } from '@/components/admin/GlassCard';
-import { bookingService } from '@/lib/api/client';
+import { bookingService, adminService } from '@/lib/api/client';
 import {
   AlertCircle,
   Calendar,
@@ -158,19 +158,12 @@ export default function BookingsAdmin() {
 
       setSendingMail(true);
       try {
-          const response = await fetch('/api/admin/send-mail', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                  to: selectedBooking.user_email,
-                  toName: selectedBooking.user_name,
-                  subject: mailSubject,
-                  message: mailMessage
-              })
+          const response = await adminService.mail.send({
+              to: selectedBooking.user_email,
+              toName: selectedBooking.user_name,
+              subject: mailSubject,
+              message: mailMessage
           });
-
-          const result = await response.json();
-          if (!response.ok) throw new Error(result.error || 'Failed to send mail');
 
           toast.success('Email sent successfully!');
           setIsMailModalOpen(false);

@@ -134,6 +134,9 @@ export const adminService = {
   paymentSettings: {
     get: () => api.get('/admin/payment-settings'),
     update: (data: any) => api.patch('/admin/payment-settings', data),
+  },
+  mail: {
+    send: (data: { to: string; toName?: string; subject: string; message: string }) => api.post('/admin/send-mail', data),
   }
 };
 

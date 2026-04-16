@@ -46,8 +46,14 @@ export async function sendZeptoMail({
     throw new Error('Email service not configured correctly.');
   }
 
-  // Clean the token: remove prefix if the user included it in the environment variable
-  const cleanToken = token.replace(/zoho-enczapikey\s+/i, '');
+  let authHeader = token;
+  
+  // If the user's token already starts with 'Zoho-enczapikey' or 'ph' (case-insensitive), 
+  // we trust the user-provided value and use it as is.
+  // Otherwise, we add the standard prefix.
+  if (!/^zoho-enczapikey/i.test(token) && !/^ph/i.test(token)) {
+    authHeader = `zoho-enczapikey ${token}`;
+  }
 
   const payload: ZeptoMailRequest = {
     from: {
@@ -69,7 +75,7 @@ export async function sendZeptoMail({
   try {
     const response = await axios.post(apiUrl, payload, {
       headers: {
-        'Authorization': `zoho-enczapikey ${cleanToken}`,
+        'Authorization': authHeader,
         'Content-Type': 'application/json',
       },
     });
@@ -77,8 +83,11 @@ export async function sendZeptoMail({
     console.log('[ZEPTOMAIL_SUCCESS] Email sent successfully:', response.data);
     return response.data;
   } catch (error: any) {
-    const errorMessage = error.response?.data || error.message;
+    const errorData = error.response?.data;
+    const errorMessage = errorData ? JSON.stringify(errorData) : error.message;
     console.error('[ZEPTOMAIL_ERROR] Failed to send email:', errorMessage);
-    throw new Error(`Failed to send email: ${JSON.stringify(errorMessage)}`);
+    
+    // Provide a more descriptive error for debugging
+    throw new Error(`Failed to send email: ${errorMessage}`);
   }
 }

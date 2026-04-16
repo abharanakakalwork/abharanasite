@@ -19,7 +19,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     // Initialize audio object once
     if (typeof window !== 'undefined') {
-      const audio = new Audio('/bg-audio.mp3');
+      const audio = new Audio(
+        "https://abharanakakal.b-cdn.net/assets/bg-audio.mp3",
+      );
       audio.loop = true;
       audioRef.current = audio;
 
