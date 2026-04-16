@@ -212,9 +212,7 @@ function TrackCard({
                 whileTap={{ scale: 0.93 }}
                 className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-400 shadow-lg z-10 relative"
                 style={{
-                  background: isPlaying
-                    ? accentColor
-                    : "#f1e4da",
+                  background: isPlaying ? accentColor : "#f1e4da",
                   color: isPlaying ? "#fff" : "#bc6746",
                 }}
                 aria-label={isPlaying ? "Pause" : "Play"}
@@ -251,7 +249,7 @@ function TrackCard({
               >
                 {track.title}
               </h3>
-              <p className="text-[11px] text-[#4a3b32]/55 font-light leading-relaxed italic line-clamp-2">
+              <p className="text-sm text-black font-light leading-relaxed italic line-clamp-2">
                 &ldquo;{track.description}&rdquo;
               </p>
             </div>
@@ -351,7 +349,9 @@ export default function AudioLibrary() {
     "All",
     ...Array.from(
       new Set(
-        tracks.map((t) => (t.category || t.intent || "Other").toUpperCase()).filter(Boolean),
+        tracks
+          .map((t) => (t.category || t.intent || "Other").toUpperCase())
+          .filter(Boolean),
       ),
     ),
   ];
@@ -483,24 +483,7 @@ export default function AudioLibrary() {
 
           {/* Sort */}
           <div className="relative">
-            <button
-              onClick={() => setShowSort((v) => !v)}
-              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#fffdf8] border border-[#f1e4da] text-[#4a3b32]/70 text-sm hover:border-[#bc6746]/40 transition-all whitespace-nowrap shadow-sm"
-            >
-              <span className="text-[#4a3b32]/35 text-xs font-mono">Sort By:</span>
-              <span>{sortBy}</span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className={`transition-transform duration-200 ${showSort ? "rotate-180" : ""}`}
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
+            
             <AnimatePresence>
               {showSort && (
                 <motion.div className="absolute right-0 top-full mt-1 z-50 min-w-[150px] rounded-xl bg-[#fffdf8] border border-[#f1e4da] shadow-xl overflow-hidden">
