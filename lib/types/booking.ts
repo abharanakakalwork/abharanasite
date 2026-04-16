@@ -4,9 +4,15 @@ export interface Offering {
   description: string;
   duration: string;
   single_price: number;
-  package_5_price: number;
-  package_10_price: number;
-  package_15_price: number;
+  package_5_price?: number;
+  package_10_price?: number;
+  package_15_price?: number;
+  image_url?: string;
+  upi_id?: string;
+  payee_name?: string;
+  qr_image_url?: string;
+  instructions?: string;
+  type?: string;
 }
 
 export interface Session {
@@ -23,7 +29,7 @@ export interface Session {
   is_blocked: boolean;
   status: string;
   blocked_reason?: string;
-  yoga_offerings?: { title: string };
+  yoga_offerings?: Offering;
 }
 
 export interface UserData {

@@ -258,8 +258,8 @@ export default function BookingPortal({ isOpen, onClose, type, itemData }: Booki
                                       selectedDate={selectedDate}
                                       selectedSession={selectedSession}
                                       userData={userData}
-                                      errors={errors as any}
-                                      setErrors={setErrors as any}
+                                      errors={errors}
+                                      setErrors={setErrors}
                                       onSelectOffering={setSelectedOffering}
                                       onSelectDate={setSelectedDate}
                                       onSelectSession={setSelectedSession}
@@ -397,7 +397,7 @@ export default function BookingPortal({ isOpen, onClose, type, itemData }: Booki
                                   payee_name: itemData?.payee_name,
                                   qr_image_url: itemData?.qr_image_url,
                                   instructions: itemData?.instructions
-                              } as any}
+                              }}
                               session={type === 'yoga' ? selectedSession : null}
                               bookingMode="single"
                               packageSize={1}

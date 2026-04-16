@@ -28,31 +28,7 @@ import { AdminTable } from '@/components/admin/AdminTable';
 // Custom Modals
 import { ConfirmModal } from '@/components/admin/modals/ConfirmModal';
 import { PromptModal } from '@/components/admin/modals/PromptModal';
-
-interface Offering {
-  id: string;
-  title: string;
-  description: string;
-  duration: string;
-  single_price: number;
-  image_url?: string;
-}
-
-interface Session {
-  id: string;
-  session_date: string;
-  start_time: string;
-  duration_minutes: number;
-  cooldown_minutes: number;
-  capacity: number;
-  booked_count: number;
-  meeting_link: string;
-  is_active: boolean;
-  is_blocked: boolean;
-  status: string;
-  blocked_reason: string | null;
-  yoga_offerings: Offering;
-}
+import { Offering, Session, BookingType } from '@/lib/types/booking';
 
 interface Booking {
   id: string;
