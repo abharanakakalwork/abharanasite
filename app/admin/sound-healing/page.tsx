@@ -26,7 +26,6 @@ interface SoundSession {
   title: string;
   description: string;
   audio_url: string;
-  image_url: string;
   duration?: string;
   category?: string;
   color?: string;
@@ -44,14 +43,12 @@ export default function SoundHealingPage() {
     title: '',
     description: '',
     audio_url: '',
-    image_url: '',
     duration: '',
     category: '',
     color: '#bc6746',
   });
   
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -82,7 +79,6 @@ export default function SoundHealingPage() {
         title: session.title || '',
         description: session.description || '',
         audio_url: session.audio_url || '',
-        image_url: session.image_url || '',
         duration: session.duration || '',
         category: session.category || '',
         color: session.color || '#bc6746',
@@ -93,7 +89,6 @@ export default function SoundHealingPage() {
         title: '', 
         description: '', 
         audio_url: '', 
-        image_url: '',
         duration: '',
         category: '',
         color: '#bc6746',
@@ -102,25 +97,6 @@ export default function SoundHealingPage() {
     setIsModalOpen(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    setIsUploadingImage(true);
-    const toastId = toast.loading('Uploading spiritual vision...');
-    
-    try {
-      const res = await mediaService.upload(file, 'images');
-      if (res.data.success) {
-        setFormData(prev => ({ ...prev, image_url: res.data.url }));
-        toast.update(toastId, { render: 'Vision captured in storage!', type: 'success', isLoading: false, autoClose: 3000 });
-      }
-    } catch (err) {
-      toast.update(toastId, { render: 'Failed to upload image', type: 'error', isLoading: false, autoClose: 3000 });
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
 
   const [audioProgress, setAudioProgress] = useState(0);
 
@@ -161,7 +137,7 @@ export default function SoundHealingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isUploadingAudio || isUploadingImage) {
+    if (isUploadingAudio) {
       toast.warning('Please wait for uploads to complete');
       return;
     }
@@ -173,7 +149,6 @@ export default function SoundHealingPage() {
           title: formData.title,
           description: formData.description,
           audio_url: formData.audio_url,
-          image_url: formData.image_url,
           duration: formData.duration,
           category: formData.category,
           color: formData.color,
@@ -238,41 +213,37 @@ export default function SoundHealingPage() {
       {/* Content Grid */}
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {sessions.map((session, i) => (
-          <GlassCard key={session.id} noPadding delay={i * 0.05} className="group h-full flex flex-col border-[#f1e4da]">
-            <div className="relative h-48 w-full overflow-hidden">
-              <img 
-                src={session.image_url || 'https://via.placeholder.com/400x200?text=No+Image'} 
-                alt={session.title}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-end">
-                <div className="flex space-x-2">
-                  <button onClick={() => handleOpenModal(session)} className="rounded-lg bg-white/20 p-2 text-white transition-colors hover:bg-[#bc6746]">
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => deleteSession(session.id)} className="rounded-lg bg-white/20 p-2 text-white transition-colors hover:bg-red-500">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+          <GlassCard key={session.id} delay={i * 0.05} className="group h-full flex flex-col border-[#f1e4da] p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 space-y-1">
+                <h3 className="text-xl font-serif font-black text-[#4a3b32] uppercase italic tracking-tighter leading-tight">{session.title}</h3>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[8px] font-black uppercase tracking-widest text-[#bc6746] bg-[#bc6746]/5 px-2 py-0.5 rounded-full">
+                    {session.category || 'General'}
+                  </span>
+                  {session.duration && (
+                    <span className="text-[8px] font-black uppercase tracking-widest text-[#a55a3d]/50 italic">
+                      {session.duration}
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
-
-            <div className="flex flex-1 flex-col p-6 space-y-4">
-              <div className="flex items-start justify-between">
-                <h3 className="text-xl font-serif font-black text-[#4a3b32] uppercase italic tracking-tighter leading-none">{session.title}</h3>
-                <div className="h-8 w-8 rounded-full bg-[#bc6746]/10 flex items-center justify-center text-[#bc6746]">
-                  <Music className="h-4 w-4" />
-                </div>
+              <div className="flex items-center space-x-2">
+                <button onClick={() => handleOpenModal(session)} className="rounded-xl bg-[#bc6746]/5 p-2 text-[#bc6746] transition-all hover:bg-[#bc6746] hover:text-white">
+                  <Edit2 className="h-4 w-4" />
+                </button>
+                <button onClick={() => deleteSession(session.id)} className="rounded-xl bg-red-50 p-2 text-red-500 transition-all hover:bg-red-500 hover:text-white">
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
-              <p className="flex-1 text-xs text-[#a55a3d]/70 line-clamp-3 leading-relaxed italic font-medium">"{session.description}"</p>
-              
-              {session.audio_url && (
-                <div className="w-full">
-                  <AdminAudioPlayer src={session.audio_url} />
-                </div>
-              )}
             </div>
+            <p className="flex-1 text-xs text-[#a55a3d]/70 leading-relaxed italic font-medium">"{session.description}"</p>
+            
+            {session.audio_url && (
+              <div className="w-full pt-2">
+                <AdminAudioPlayer src={session.audio_url} />
+              </div>
+            )}
           </GlassCard>
         ))}
       </div>
@@ -359,51 +330,8 @@ export default function SoundHealingPage() {
                     </div>
                   </div>
 
-                  {/* Right Col - Media */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-[#a55a3d]/50 uppercase tracking-[0.4em] ml-2 flex items-center">
-                        <ImageIcon className="h-3 w-3 mr-2" /> Thumbnail Image
-                      </label>
-                      <div className="group relative h-40 w-full rounded-[30px] border-2 border-dashed border-[#f1e4da] bg-[#fffdf8] transition-all hover:border-[#bc6746]/30 overflow-hidden">
-                        {formData.image_url ? (
-                          <div className="relative h-full w-full">
-                            <img 
-                              src={formData.image_url} 
-                              className="h-full w-full object-cover" 
-                            />
-                            {isUploadingImage && (
-                              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm">
-                                <Loader2 className="h-8 w-8 text-[#bc6746] animate-spin mb-2" />
-                              </div>
-                            )}
-                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer select-none">
-                                <X className="w-5 h-5 mb-1" />
-                                <span className="text-[7px] font-black uppercase tracking-widest">Swap Visual</span>
-                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                            </label>
-                          </div>
-                        ) : (
-                          <div className="flex h-full flex-col items-center justify-center text-[#a55a3d]/30">
-                            {isUploadingImage ? (
-                               <Loader2 className="h-8 w-8 mb-2 animate-spin text-[#bc6746]" />
-                            ) : (
-                              <>
-                                <ImageIcon className="h-8 w-8 mb-2 opacity-20" />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Invoke Visual</span>
-                              </>
-                            )}
-                            <input 
-                              type="file" 
-                              accept="image/*"
-                              onChange={handleImageUpload}
-                              disabled={isUploadingImage}
-                              className="absolute inset-0 cursor-pointer opacity-0"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  {/* Right Col - Audio Media Only */}
+                  <div className="space-y-6">
 
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-[#a55a3d]/50 uppercase tracking-[0.4em] ml-2 flex items-center">
@@ -432,11 +360,6 @@ export default function SoundHealingPage() {
                             <p className="text-[9px] text-[#a55a3d]/70 truncate font-medium italic">
                               {isUploadingAudio ? `Streaming... ${audioProgress}%` : (formData.audio_url ? 'Frequency Resonating' : 'Click to bind masterpiece (Max 100MB)')}
                             </p>
-                            {formData.audio_url && !isUploadingAudio && (
-                              <div className="mt-1 flex items-center text-[7px] text-green-600 font-black uppercase tracking-widest">
-                                <CheckCircle className="h-2 w-2 mr-1" /> Bound to Archive
-                              </div>
-                            )}
                           </div>
                         </div>
                         <input 
@@ -449,7 +372,12 @@ export default function SoundHealingPage() {
                       </div>
                     </div>
 
-                    
+                    <div className="p-6 rounded-[30px] bg-[#bc6746]/5 border border-[#bc6746]/10 space-y-4">
+                      <h4 className="text-[10px] font-black text-[#bc6746] uppercase tracking-[0.3em] text-center">Sonic Soul Archive</h4>
+                      <p className="text-[10px] text-[#4a3b32]/60 text-center italic leading-relaxed px-4">
+                        Ensure your audio frequency is in master quality before binding to the digital sanctuary.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -463,17 +391,17 @@ export default function SoundHealingPage() {
                   </button>
                   <button 
                     type="submit" 
-                    disabled={isSubmitting || isUploadingAudio || isUploadingImage}
+                    disabled={isSubmitting || isUploadingAudio}
                     className="flex items-center px-12 py-4 rounded-2xl bg-[#bc6746] text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-[#bc6746]/10 transition-all hover:bg-[#a55a3d] hover:scale-[1.03] active:scale-95 disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (isUploadingAudio || isUploadingImage) ? (
+                    ) : isUploadingAudio ? (
                       <CloudLightning className="h-4 w-4 animate-pulse mr-2" />
                     ) : (
                       <CheckCircle className="h-4 w-4 mr-2" />
                     )}
-                    {isSubmitting ? 'Saving...' : (isUploadingAudio || isUploadingImage) ? 'Uploading Media...' : (editingSession ? 'Save Changes' : 'Add Audio')}
+                    {isSubmitting ? 'Saving...' : isUploadingAudio ? 'Uploading Media...' : (editingSession ? 'Save Changes' : 'Add Audio')}
                   </button>
                 </div>
               </form>
