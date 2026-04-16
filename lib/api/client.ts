@@ -100,22 +100,38 @@ export const dashboardService = {
 };
 
 export const mediaService = {
-  upload: (file: File, folder: string = 'images', onProgress?: (pct: number) => void) => {
-    // We send the file as a raw binary body to allow streaming in Next.js Edge Runtime.
-    // Metadata is passed via custom headers to avoid multipart/form-data parsing overhead.
-    return api.post('/media/upload', file, {
-      headers: { 
-        'Content-Type': file.type || 'application/octet-stream',
-        'X-Folder': folder, // Custom header for the target folder
-        'X-FileName': encodeURIComponent(file.name) // Custom header for the filename
-      },
-      onUploadProgress: (progressEvent) => {
-        if (onProgress && progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress(percentCompleted);
+  upload: async (file: File, folder: string = 'images', onProgress?: (pct: number) => void) => {
+    try {
+      // 1. Fetch secure credentials from our API
+      const credsRes = await api.get('/media/credentials');
+      if (!credsRes.data.success) throw new Error('Could not fetch upload credentials');
+      
+      const { storageZone, accessKey, pullZone } = credsRes.data.credentials;
+      
+      // 2. Prepare the direct upload URL
+      const fileName = file.name.replace(/\s+/g, '-');
+      const uploadUrl = `https://storage.bunnycdn.com/${storageZone}/${folder}/${fileName}`;
+      
+      // 3. Perform direct binary upload to Bunny Storage (Bypassing Vercel)
+      await axios.put(uploadUrl, file, {
+        headers: { 
+          'AccessKey': accessKey,
+          'Content-Type': file.type || 'application/octet-stream' 
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(percentCompleted);
+          }
         }
-      }
-    });
+      });
+
+      // 4. Return the public CDN URL
+      return { data: { success: true, url: `https://${pullZone}/${folder}/${fileName}` } };
+    } catch (err: any) {
+      console.error('[DIRECT_UPLOAD_ERROR]:', err);
+      throw err;
+    }
   },
   purge: (url: string) => api.delete('/media/purge', { data: { url } }),
 };
