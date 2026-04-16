@@ -89,6 +89,13 @@ const nextConfig: NextConfig = {
       fullUrl: true,
     },
   },
+
+  // ─── Experimental Features ───────────────────────────────────────────────
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb',
+    },
+  },
 };
 
 export default nextConfig;

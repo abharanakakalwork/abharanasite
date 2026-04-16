@@ -1,4 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb',
+    },
+  },
+};
 import { withAuth } from '@/lib/with-auth';
 import { uploadToBunny } from '@/lib/bunny';
 
