@@ -16,6 +16,7 @@ import {
   CreditCard,
   Image as ImageIcon,
   RefreshCw,
+  Pencil,
   Link as LinkIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -71,6 +72,7 @@ export default function OnlineSessionsAdmin() {
     description: '',
     duration: '60 Mins',
     single_price: 1500,
+    monthly_price: 0,
     image_url: ''
   });
 
@@ -746,6 +748,7 @@ export default function OnlineSessionsAdmin() {
                       description: '',
                       duration: '60 Mins',
                       single_price: 500,
+                      monthly_price: 0,
                       image_url: ''
                     });
                     setIsOfferingModalOpen(true);
@@ -809,13 +812,14 @@ export default function OnlineSessionsAdmin() {
                              description: item.description,
                              duration: item.duration,
                              single_price: item.single_price,
+                             monthly_price: item.monthly_price || 0,
                              image_url: item.image_url || ''
                            });
                            setIsOfferingModalOpen(true);
                          }}
                          className="p-2 rounded-xl bg-white border border-[#f1e4da] text-[#bc6746] hover:bg-[#bc6746] hover:text-white transition-all shadow-sm active:scale-95"
                        >
-                         <RefreshCw className="h-4 w-4" />
+                         <Pencil className="h-4 w-4" />
                        </button>
                        <button 
                          onClick={() => handleDeleteOffering(item.id)}
@@ -833,90 +837,149 @@ export default function OnlineSessionsAdmin() {
 
       </AnimatePresence>
 
-      {/* Offering Modal - Enhanced */}
+      {/* Offering Modal — Redesigned */}
       <AnimatePresence>
         {isOfferingModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#4a3b32]/80 backdrop-blur-2xl">
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="w-full max-w-2xl">
-              <GlassCard className="border-[#bc6746]/20 p-12 shadow-[0_50px_100px_rgba(0,0,0,0.3)] rounded-[60px] overflow-hidden relative">
-                <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-transparent via-[#bc6746] to-transparent" />
-                <div className="flex justify-between items-center mb-10">
-                    <div>
-                        <h2 className="text-4xl font-serif text-[#4a3b32] uppercase italic tracking-tighter">{editingOffering ? 'Edit Class Type' : 'Add Class Type'}</h2>
-                        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#a55a3d]/40 mt-2">Class Logic Configuration</p>
-                    </div>
-                    <button onClick={() => setIsOfferingModalOpen(false)} className="p-4 border border-[#f1e4da] rounded-2xl hover:bg-[#bc6746]/5 transition-all"><X className="w-6 h-6 text-[#4a3b32]" /></button>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#2d1e17]/75 backdrop-blur-md">
+            <motion.div
+              initial={{ scale: 0.94, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 16 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 28 }}
+              className="w-full max-w-xl"
+              style={{ maxHeight: '90vh' }}
+            >
+              <div className="relative bg-[#fdf7f2] border border-[#e8d5c5] rounded-3xl shadow-[0_32px_80px_rgba(74,59,50,0.28)] overflow-hidden flex flex-col" style={{ maxHeight: '90vh' }}>
+                {/* Top accent */}
+                <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-transparent via-[#bc6746] to-transparent" />
+
+                {/* Header */}
+                <div className="flex items-center justify-between px-7 pt-7 pb-5 shrink-0 border-b border-[#eddccc]">
+                  <div>
+                    <h2 className="text-2xl font-serif text-[#3a2b22] italic tracking-tight leading-none">
+                      {editingOffering ? 'Edit Class Type' : 'New Class Type'}
+                    </h2>
+                    <p className="text-[9px] font-black uppercase tracking-[0.45em] text-[#a55a3d]/50 mt-1.5">Offering Configuration</p>
+                  </div>
+                  <button
+                    onClick={() => setIsOfferingModalOpen(false)}
+                    className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#f1e4da] hover:bg-[#bc6746]/15 text-[#7a5a48] transition-all"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <form onSubmit={handleCreateOffering} className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/50 ml-2">Class Title</label>
-                      <input type="text" required placeholder="e.g. Lunar Hatha Flow" value={offeringForm.title} onChange={e => setOfferingForm({ ...offeringForm, title: e.target.value })} className="w-full bg-[#fffdf8] border-b border-[#f1e4da] px-2 py-4 text-2xl font-serif italic text-[#4a3b32] focus:border-[#bc6746] outline-none transition-all placeholder:text-[#bc6746]/10"/>
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/50 ml-2">Temporal Pulse</label>
-                       <input type="text" required placeholder="e.g. 75 Mins" value={offeringForm.duration} onChange={e => setOfferingForm({ ...offeringForm, duration: e.target.value })} className="w-full bg-[#fffdf8] border-b border-[#f1e4da] px-2 py-4 text-2xl font-serif italic text-[#4a3b32] focus:border-[#bc6746] outline-none transition-all placeholder:text-[#bc6746]/10"/>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/50 ml-2">Intrinsic Description</label>
-                    <textarea rows={2} required placeholder="What essence does this practice carry?" value={offeringForm.description} onChange={e => setOfferingForm({ ...offeringForm, description: e.target.value })} className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-[30px] p-6 text-md italic font-medium text-[#4a3b32] focus:border-[#bc6746] outline-none transition-all placeholder:text-[#bc6746]/10"/>
-                  </div>
+                {/* Body — no scroll, fits 90vh */}
+                <form onSubmit={handleCreateOffering} className="flex flex-col flex-1 overflow-hidden">
+                  <div className="flex-1 px-7 py-5 space-y-4">
 
-                  {/* Offering Image Upload */}
-                  <div className="space-y-4">
-                     <label className="text-[10px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/50 ml-2">Offering Imagery</label>
-                     <div className="flex items-center gap-8 p-6 rounded-[40px] bg-[#bc6746]/5 border border-[#bc6746]/10">
-                        {offeringForm.image_url ? (
-                          <div className="relative w-24 h-24 rounded-2xl overflow-hidden ring-1 ring-[#bc6746]/20 group">
-                             <img src={offeringForm.image_url} alt="Preview" className="w-full h-full object-cover" />
-                             <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                                <RefreshCw className="w-4 h-4 text-white" />
-                                <input type="file" className="hidden" accept="image/*" onChange={handleOfferingImageUpload} />
-                             </label>
-                          </div>
-                        ) : (
-                          <label className="flex w-24 h-24 flex-col items-center justify-center rounded-2xl bg-white border border-dashed border-[#bc6746]/20 cursor-pointer hover:bg-[#bc6746]/5 transition-colors">
-                             <Plus className="w-5 h-5 text-[#bc6746]/40" />
-                             <input type="file" className="hidden" accept="image/*" onChange={handleOfferingImageUpload} />
-                          </label>
-                        )}
-                        <div className="flex-1 space-y-1">
-                           <p className="text-[10px] font-black uppercase tracking-widest text-[#4a3b32]">Visual Resonance</p>
-                           <p className="text-[9px] text-[#bc6746]/60 italic">Upload a curated image to represent this flow on our digital sanctuary.</p>
-                           {actioningId === 'offering_image_upload' && (
-                             <div className="flex items-center gap-2 mt-2 text-[#bc6746]">
-                               <Loader2 className="w-3 h-3 animate-spin" />
-                               <span className="text-[8px] font-black uppercase tracking-widest">Bridging Storage...</span>
-                             </div>
-                           )}
-                        </div>
-                     </div>
-                  </div>
+                    {/* Row 1: Name + Duration */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/60">Offering Name</label>
+                        <input
+                          type="text" required
+                          placeholder="e.g. Lunar Hatha Flow"
+                          value={offeringForm.title}
+                          onChange={e => setOfferingForm({ ...offeringForm, title: e.target.value })}
+                          className="w-full bg-white border border-[#e8d5c5] rounded-xl px-4 py-2.5 text-sm font-serif italic text-[#3a2b22] focus:border-[#bc6746] focus:ring-1 focus:ring-[#bc6746]/20 outline-none transition-all placeholder:text-[#bc6746]/20"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/60">Duration</label>
+                        <input
+                          type="text" required
+                          placeholder="e.g. 60 Mins"
+                          value={offeringForm.duration}
+                          onChange={e => setOfferingForm({ ...offeringForm, duration: e.target.value })}
+                          className="w-full bg-white border border-[#e8d5c5] rounded-xl px-4 py-2.5 text-sm font-serif italic text-[#3a2b22] focus:border-[#bc6746] focus:ring-1 focus:ring-[#bc6746]/20 outline-none transition-all placeholder:text-[#bc6746]/20"
+                        />
+                      </div>
+                    </div>
 
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/50 ml-2">Standard Price</label>
-                    <div className="relative">
-                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#bc6746] font-serif italic text-2xl">₹</span>
-                      <input 
-                        type="number" 
-                        required 
-                        value={offeringForm.single_price} 
-                        onChange={e => setOfferingForm({ ...offeringForm, single_price: Number(e.target.value) })} 
-                        className="w-full bg-[#fffdf8] border border-[#f1e4da] rounded-[30px] px-12 py-5 text-3xl font-serif font-black text-[#bc6746] outline-none focus:border-[#bc6746] transition-all shadow-inner"
+                    {/* Row 2: Description */}
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/60">Description</label>
+                      <textarea
+                        rows={2} required
+                        placeholder="What essence does this practice carry?"
+                        value={offeringForm.description}
+                        onChange={e => setOfferingForm({ ...offeringForm, description: e.target.value })}
+                        className="w-full bg-white border border-[#e8d5c5] rounded-xl px-4 py-2.5 text-sm italic text-[#3a2b22] focus:border-[#bc6746] focus:ring-1 focus:ring-[#bc6746]/20 outline-none transition-all placeholder:text-[#bc6746]/20 resize-none"
                       />
                     </div>
+
+                    {/* Row 3: Image upload */}
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/60">Class Image</label>
+                      <div className="flex items-center gap-4 p-3.5 rounded-2xl bg-[#bc6746]/5 border border-[#bc6746]/12">
+                        {offeringForm.image_url ? (
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden ring-1 ring-[#bc6746]/20 group shrink-0">
+                            <img src={offeringForm.image_url} alt="Preview" className="w-full h-full object-cover" />
+                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                              <RefreshCw className="w-3.5 h-3.5 text-white" />
+                              <input type="file" className="hidden" accept="image/*" onChange={handleOfferingImageUpload} />
+                            </label>
+                          </div>
+                        ) : (
+                          <label className="flex w-16 h-16 flex-col items-center justify-center rounded-xl bg-white border border-dashed border-[#bc6746]/25 cursor-pointer hover:bg-[#bc6746]/5 transition-colors shrink-0">
+                            <Plus className="w-4 h-4 text-[#bc6746]/40" />
+                            <input type="file" className="hidden" accept="image/*" onChange={handleOfferingImageUpload} />
+                          </label>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#4a3b32]">Visual Resonance</p>
+                          <p className="text-[9px] text-[#bc6746]/60 italic mt-0.5 leading-relaxed">Upload a curated image to represent this flow on our digital sanctuary.</p>
+                          {actioningId === 'offering_image_upload' && (
+                            <div className="flex items-center gap-1.5 mt-1.5 text-[#bc6746]">
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span className="text-[8px] font-black uppercase tracking-widest">Uploading...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Row 4: Prices */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/60">Price / Month</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#bc6746] font-serif text-lg">₹</span>
+                          <input
+                            type="number"
+                            value={offeringForm.monthly_price}
+                            onChange={e => setOfferingForm({ ...offeringForm, monthly_price: Number(e.target.value) })}
+                            className="w-full bg-white border border-[#e8d5c5] rounded-xl pl-9 pr-4 py-2.5 text-xl font-serif font-black text-[#bc6746] focus:border-[#bc6746] focus:ring-1 focus:ring-[#bc6746]/20 outline-none transition-all"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-[#a55a3d]/60">Price / Class</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#bc6746] font-serif text-lg">₹</span>
+                          <input
+                            type="number" required
+                            value={offeringForm.single_price}
+                            onChange={e => setOfferingForm({ ...offeringForm, single_price: Number(e.target.value) })}
+                            className="w-full bg-white border border-[#e8d5c5] rounded-xl pl-9 pr-4 py-2.5 text-xl font-serif font-black text-[#bc6746] focus:border-[#bc6746] focus:ring-1 focus:ring-[#bc6746]/20 outline-none transition-all"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex space-x-6 pt-10">
-                    <button type="submit" className="flex-1 py-6 rounded-3xl bg-[#bc6746] text-white text-[11px] font-black uppercase tracking-[0.5em] transition-all shadow-[0_20px_40px_rgba(188,103,70,0.3)] hover:scale-[1.02] active:scale-95">
-                        {editingOffering ? 'Verified Update' : 'Initialize Creation'}
+                  {/* Footer: Submit */}
+                  <div className="px-7 py-5 border-t border-[#eddccc] shrink-0">
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 rounded-2xl bg-[#bc6746] text-white text-[10px] font-black uppercase tracking-[0.45em] shadow-[0_12px_28px_rgba(188,103,70,0.28)] hover:bg-[#a85a3c] active:scale-[0.98] transition-all"
+                    >
+                      {editingOffering ? 'Save Changes' : 'Create Class Type'}
                     </button>
                   </div>
                 </form>
-              </GlassCard>
+              </div>
             </motion.div>
           </div>
         )}

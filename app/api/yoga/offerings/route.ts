@@ -29,11 +29,11 @@ export async function GET() {
 async function postHandler(req: NextRequest) {
   try {
     const body = await req.json();
-    const { title, description, duration, single_price, image_url } = body;
+    const { title, description, duration, single_price, monthly_price, image_url } = body;
 
     const { data, error } = await supabaseAdmin
       .from('yoga_offerings')
-      .insert({ title, description, duration, single_price, image_url })
+      .insert({ title, description, duration, single_price, monthly_price, image_url })
       .select()
       .single();
 

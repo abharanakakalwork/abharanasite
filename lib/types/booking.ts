@@ -4,6 +4,7 @@ export interface Offering {
   description: string;
   duration: string;
   single_price: number;
+  monthly_price?: number;
   package_5_price?: number;
   package_10_price?: number;
   package_15_price?: number;

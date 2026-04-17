@@ -12,13 +12,14 @@ async function patchHandler(req: NextRequest, { params }: { params: { id: string
     const body = await req.json();
     
     // Whitelist fields to update
-    const { title, description, duration, single_price, image_url } = body;
+    const { title, description, duration, single_price, monthly_price, image_url } = body;
     
     const updateData: any = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (duration !== undefined) updateData.duration = duration;
     if (single_price !== undefined) updateData.single_price = single_price;
+    if (monthly_price !== undefined) updateData.monthly_price = monthly_price;
     if (image_url !== undefined) updateData.image_url = image_url;
 
     const { data, error } = await supabaseAdmin
