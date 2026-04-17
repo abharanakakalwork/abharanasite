@@ -66,6 +66,7 @@ export default function OnlineSessionsAdmin() {
   const [isOfferingModalOpen, setIsOfferingModalOpen] = useState(false);
   const [editingOffering, setEditingOffering] = useState<Offering | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
+  const [isSubmittingOffering, setIsSubmittingOffering] = useState(false);
 
   const [offeringForm, setOfferingForm] = useState({
     title: '',
@@ -135,6 +136,7 @@ export default function OnlineSessionsAdmin() {
 
   const handleCreateOffering = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmittingOffering(true);
     try {
       if (editingOffering) {
         await yogaService.offerings.update(editingOffering.id, offeringForm);
@@ -148,6 +150,8 @@ export default function OnlineSessionsAdmin() {
       fetchData();
     } catch (err) {
       toast.error('Failed to save offering');
+    } finally {
+      setIsSubmittingOffering(false);
     }
   };
 
@@ -973,9 +977,11 @@ export default function OnlineSessionsAdmin() {
                   <div className="px-7 py-5 border-t border-[#eddccc] shrink-0">
                     <button
                       type="submit"
-                      className="w-full py-3.5 rounded-2xl bg-[#bc6746] text-white text-[10px] font-black uppercase tracking-[0.45em] shadow-[0_12px_28px_rgba(188,103,70,0.28)] hover:bg-[#a85a3c] active:scale-[0.98] transition-all"
+                      disabled={isSubmittingOffering}
+                      className="w-full py-3.5 rounded-2xl bg-[#bc6746] text-white text-[10px] font-black uppercase tracking-[0.45em] shadow-[0_12px_28px_rgba(188,103,70,0.28)] hover:bg-[#a85a3c] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      {editingOffering ? 'Save Changes' : 'Create Class Type'}
+                      {isSubmittingOffering && <Loader2 className="w-4 h-4 animate-spin" />}
+                      <span>{editingOffering ? (isSubmittingOffering ? 'Saving...' : 'Save Changes') : (isSubmittingOffering ? 'Creating...' : 'Create Class Type')}</span>
                     </button>
                   </div>
                 </form>
