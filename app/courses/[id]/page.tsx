@@ -12,7 +12,8 @@ import {
   BookOpen, 
   ArrowLeft,
   ShieldCheck,
-  Zap
+  Zap,
+  MonitorPlay
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";

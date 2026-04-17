@@ -8,20 +8,34 @@ import {
   GripVertical, 
   Video, 
   Edit2, 
-  ChevronDown, 
-  ChevronUp,
-  ExternalLink,
   Play,
-  Upload
+  Upload,
+  MonitorPlay
 } from 'lucide-react';
-import { courseService } from '@/lib/api/client';
+import { courseService, videoService } from '@/lib/api/client';
 import { toast } from 'react-toastify';
 import BulkVideoUpload from './BulkVideoUpload';
 import { StatusToggle } from '@/components/admin/StatusToggle';
 
+interface Lesson {
+  id: string;
+  title: string;
+  video_url?: string;
+  duration?: string;
+  is_published: boolean;
+  sort_order: number;
+}
+
+interface Section {
+  id: string;
+  title: string;
+  course_lessons?: Lesson[];
+  sort_order: number;
+}
+
 interface Props {
   courseId: string;
-  initialSections: any[];
+  initialSections: Section[];
   onRefresh: () => void;
 }
 
@@ -97,7 +111,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
     }
   };
 
-  const handleUpdateLesson = async (id: string, data: any) => {
+  const handleUpdateLesson = async (id: string, data: Partial<Lesson>) => {
     try {
       await courseService.lessons.update(id, data);
       setEditingLesson(null);
@@ -122,7 +136,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
       </div>
 
       <div className="space-y-4">
-        {initialSections?.map((section, sIdx) => (
+        {initialSections?.map((section: Section, sIdx: number) => (
           <div key={section.id} className="bg-white/40 border border-[#f1e4da] rounded-2xl overflow-hidden shadow-sm">
             {/* Section Header */}
             <div className="px-6 py-4 flex items-center justify-between border-b border-[#f1e4da]/50 bg-white/20">
@@ -133,8 +147,8 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                     autoFocus
                     className="bg-transparent font-serif font-bold text-[#4a3b32] outline-none border-b border-[#bc6746]"
                     defaultValue={section.title}
-                    onBlur={(e) => handleUpdateSection(section.id, e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleUpdateSection(section.id, (e.target as any).value)}
+                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleUpdateSection(section.id, e.target.value)}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleUpdateSection(section.id, (e.target as HTMLInputElement).value)}
                   />
                 ) : (
                   <span className="font-serif font-bold text-[#4a3b32]">{section.title}</span>
@@ -168,7 +182,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
 
             {/* Lessons List */}
             <div className="p-3 space-y-2">
-                {section.course_lessons?.map((lesson, lIdx) => (
+                {section.course_lessons?.map((lesson: Lesson, lIdx: number) => (
                   <div 
                     key={lesson.id}
                     className="bg-white/60 border border-[#f1e4da] rounded-xl p-3 flex items-center justify-between gap-4 group"
@@ -180,8 +194,8 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                             src={`https://vz-117edb63-f79.b-cdn.net/${lesson.video_url}/thumbnail.jpg`} 
                             className="w-full h-full object-cover" 
                             alt=""
-                            onError={(e) => {
-                              (e.target as any).src = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=100";
+                            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=100";
                             }}
                           />
                         ) : (
@@ -195,7 +209,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                               autoFocus
                               className="w-full bg-white border border-[#f1e4da] rounded-lg px-3 py-1 text-sm outline-none"
                               defaultValue={lesson.title}
-                              onBlur={(e) => handleUpdateLesson(lesson.id, { ...lesson, title: e.target.value })}
+                              onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleUpdateLesson(lesson.id, { title: e.target.value })}
                             />
                             <div className="flex gap-2">
                                 <div className="relative flex-1 group/upload">
@@ -203,7 +217,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                                       placeholder="Bunny Video ID (e.g. 7474-abc-...)"
                                       className="w-full bg-white border border-[#f1e4da] rounded-lg px-3 py-1 text-[10px] outline-none group-focus-within/upload:border-[#bc6746]"
                                       defaultValue={lesson.video_url}
-                                      onBlur={(e) => handleUpdateLesson(lesson.id, { ...lesson, video_url: e.target.value })}
+                                      onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleUpdateLesson(lesson.id, { video_url: e.target.value })}
                                     />
                                     <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
                                        <button 
@@ -211,8 +225,9 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                                               const input = document.createElement('input');
                                               input.type = 'file';
                                               input.accept = 'video/*';
-                                              input.onchange = async (e: any) => {
-                                                  const file = e.target.files?.[0];
+                                              input.onchange = async (e: Event) => {
+                                                  const target = e.target as HTMLInputElement;
+                                                  const file = target.files?.[0];
                                                   if (!file) return;
                                                   
                                                   const toastId = toast.loading(`Uploading "${file.name}" to Sanctuary...`);
@@ -220,11 +235,11 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                                                       const sessionRes = await videoService.createSession(file.name);
                                                       const sessionData = sessionRes.data.data;
                                                       
-                                                      await videoService.uploadFile(file, sessionData, (pct) => {
+                                                      await videoService.uploadFile(file, sessionData, (pct: number) => {
                                                           toast.update(toastId, { render: `Uploading: ${pct}%`, type: 'default', isLoading: true });
                                                       });
 
-                                                      await handleUpdateLesson(lesson.id, { ...lesson, video_url: sessionData.videoId });
+                                                      await handleUpdateLesson(lesson.id, { video_url: sessionData.videoId });
                                                       toast.update(toastId, { render: "Synchronized successfully", type: "success", isLoading: false, autoClose: 3000 });
                                                   } catch (err) {
                                                       toast.update(toastId, { render: "Upload failed", type: "error", isLoading: false, autoClose: 3000 });
@@ -243,7 +258,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                                   placeholder="Duration (e.g. 12:45)"
                                   className="w-24 bg-white border border-[#f1e4da] rounded-lg px-3 py-1 text-[10px] outline-none"
                                   defaultValue={lesson.duration}
-                                  onBlur={(e) => handleUpdateLesson(lesson.id, { ...lesson, duration: e.target.value })}
+                                  onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleUpdateLesson(lesson.id, { duration: e.target.value })}
                                 />
                             </div>
                           </div>
@@ -267,7 +282,7 @@ export default function CurriculumBuilder({ courseId, initialSections, onRefresh
                       </button>
                       <StatusToggle 
                         status={lesson.is_published}
-                        onToggle={(newStatus) => handleUpdateLesson(lesson.id, { ...lesson, is_published: newStatus })}
+                        onToggle={(newStatus) => handleUpdateLesson(lesson.id, { is_published: newStatus })}
                         labels={{ true: 'Live', false: 'Draft' }}
                       />
                       <button onClick={() => handleDeleteLesson(lesson.id)} className="p-2 text-[#a55a3d]/40 hover:text-red-500 transition-all">
