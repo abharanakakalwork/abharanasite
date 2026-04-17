@@ -15,7 +15,8 @@ import {
   LogOut,
   CalendarDays,
   Download,
-  Palette
+  Palette,
+  Video
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -29,6 +30,7 @@ const MENU_ITEMS = [
   { icon: ClipboardList, label: 'Bookings', href: '/admin/bookings' },
   { icon: MessageSquare, label: 'Messages', href: '/admin/enquiries' },
   { icon: BookOpen, label: 'Yoga Classes', href: '/admin/online-sessions' },
+  { icon: Video, label: 'Video Courses', href: '/admin/courses' },
   { icon: Music, label: 'Meditation Audio', href: '/admin/sound-healing' },
   { icon: CalendarDays, label: 'Events', href: '/admin/upcoming-sessions' },
   { icon: Palmtree, label: 'Retreats', href: '/admin/retreats' },

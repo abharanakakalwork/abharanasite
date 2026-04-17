@@ -34,6 +34,8 @@ export const metadata: Metadata = {
 };
 
 import { AudioProvider } from "@/context/AudioContext";
+import { StudentAuthProvider } from "@/hooks/useStudentAuth";
+import StudentAuthModal from "@/components/auth/StudentAuthModal";
 
 export default function RootLayout({
   children,
@@ -41,36 +43,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${robotoSlab.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${robotoSlab.variable} h-full antialiased`}>
       <body className={`min-h-full flex flex-col ${process.env.NODE_ENV === 'production' ? 'production-mode' : ''}`} cz-shortcut-listen="true">
-        <AudioProvider>
-          <LenisProvider>
-            <NavbarWrapper>{children}</NavbarWrapper>
-            <Footer />
-            <ToastContainer
-              position="bottom-right"
-              theme="light"
-              toastStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                backdropFilter: 'blur(10px)', 
-                border: '1px solid #f1e4da', 
-                borderRadius: '20px',
-                color: '#4a3b32',
-                fontFamily: 'inherit'
-              }}
-            />
-            <ImageProtection />
-
-            <Script id="chatbase-script" strategy="afterInteractive">
-              {`
-                (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="df9Ij5N_aJDFR-rXbuldG";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-              `}
-            </Script>
-          </LenisProvider>
-        </AudioProvider>
+        <StudentAuthProvider>
+          <StudentAuthModal />
+          <AudioProvider>
+            <LenisProvider>
+              <NavbarWrapper>{children}</NavbarWrapper>
+              <Footer />
+              <ToastContainer
+                position="bottom-right"
+                theme="light"
+                toastStyle={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                  backdropFilter: 'blur(10px)', 
+                  border: '1px solid #f1e4da', 
+                  borderRadius: '20px',
+                  color: '#4a3b32',
+                  fontFamily: 'inherit'
+                }}
+              />
+              <ImageProtection />
+              <Script id="chatbase-script" strategy="afterInteractive">
+                {`
+                  (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="df9Ij5N_aJDFR-rXbuldG";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+                `}
+              </Script>
+            </LenisProvider>
+          </AudioProvider>
+        </StudentAuthProvider>
       </body>
     </html>
   );

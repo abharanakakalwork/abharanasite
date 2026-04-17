@@ -76,3 +76,44 @@ export async function sendBookingEmail(to: string, data: {
         console.error('[EMAIL_ERROR] Failed to send email:', err);
     }
 }
+
+/**
+ * Sends a password reset email to the student.
+ */
+export async function sendResetPasswordEmail(to: string, resetLink: string) {
+    if (!process.env.RESEND_API_KEY || !resend) {
+        console.warn('[EMAIL_WARN] Resend not configured. Skipping reset email...');
+        return;
+    }
+
+    const html = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #f1e4da; border-radius: 20px;">
+            <h2 style="color: #bc6746;">Reset Your Password</h2>
+            <hr style="border: 0.5px solid #f1e4da;" />
+            <p>Namaste,</p>
+            <p>We received a request to reset your password for your Abharana Kakal account.</p>
+            <p>Click the button below to choose a new password. This link will expire in 1 hour.</p>
+            
+            <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #bc6746; color: white; text-decoration: none; border-radius: 12px; font-weight: bold; margin: 20px 0;">Reset Password</a>
+            
+            <p>If you did not request this, you can safely ignore this email.</p>
+            
+            <hr style="border: 0.5px solid #f1e4da;" />
+            <p style="font-size: 11px; text-align: center; color: #a55a3d;">
+                Abharana Kakal | Wellness Sanctuary
+            </p>
+        </div>
+    `;
+
+    try {
+        await resend.emails.send({
+            from: 'Abharana Kakal <onboarding@resend.dev>',
+            to: [to],
+            subject: 'Reset Your Password - Abharana Kakal',
+            html,
+        });
+        console.log(`[EMAIL_SUCCESS] Sent password reset email to ${to}`);
+    } catch (err) {
+        console.error('[EMAIL_ERROR] Failed to send reset email:', err);
+    }
+}

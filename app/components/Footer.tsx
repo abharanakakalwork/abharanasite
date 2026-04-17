@@ -35,6 +35,7 @@ export default function Footer() {
             { name: "Home", href: "/" },
             { name: "About", href: "/about" },
             { name: "Sound Healing", href: "/sound-healing" },
+            { name: "Digital Sanctuary", href: "/courses" },
             { name: "Retreats", href: "/retreats" },
             { name: "From Within", href: "/within" },
             { name: "Contact", href: "/contact" },

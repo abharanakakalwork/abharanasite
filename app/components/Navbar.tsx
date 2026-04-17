@@ -11,9 +11,19 @@ const SOUND_HEALING_LINKS = [
     href: "/sound-healing",
     desc: "Tibetan bowls, gong baths & live sessions",
     icon: (
-      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        viewBox="0 0 24 24"
+      >
         <circle cx="12" cy="12" r="3" />
-        <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" strokeLinecap="round" />
+        <path
+          d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"
+          strokeLinecap="round"
+        />
       </svg>
     ),
   },
@@ -22,8 +32,19 @@ const SOUND_HEALING_LINKS = [
     href: "/sound-healing/guided-meditations",
     desc: "Frequency-tuned audio sessions library",
     icon: (
-      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-        <path d="M9 18V5l12-2v13" strokeLinecap="round" strokeLinejoin="round" />
+      <svg
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M9 18V5l12-2v13"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         <circle cx="6" cy="18" r="3" />
         <circle cx="18" cy="16" r="3" />
       </svg>
@@ -49,7 +70,10 @@ export default function Navbar() {
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setSoundDropdown(false);
       }
     }
@@ -67,6 +91,7 @@ export default function Navbar() {
 
   const simpleLinks = [
     { name: "About", href: "/about" },
+    { name: "Courses", href: "/courses" },
     { name: "Retreats", href: "/retreats" },
     { name: "From Within", href: "/within" },
     { name: "Contact", href: "/contact" },
@@ -92,7 +117,11 @@ export default function Navbar() {
               className="flex items-center transition-transform hover:scale-105 duration-500"
             >
               <img
-                src={scrolled ? "https://abharanakakal.b-cdn.net/assets/logo-brown-01.svg" : "https://abharanakakal.b-cdn.net/assets/logo-white-02.svg"}
+                src={
+                  scrolled
+                    ? "https://abharanakakal.b-cdn.net/assets/logo-brown-01.svg"
+                    : "https://abharanakakal.b-cdn.net/assets/logo-white-02.svg"
+                }
                 alt="Abharana Kakal Logo"
                 className="h-8 sm:h-10 md:h-12 w-75 object-contain transition-all duration-700"
               />
@@ -107,7 +136,20 @@ export default function Navbar() {
               className={`group relative text-[11px] font-bold tracking-[0.2em] uppercase py-2 transition-all duration-300 ${textColor}`}
             >
               About
-              <span className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`} />
+              <span
+                className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`}
+              />
+            </Link>
+
+            {/* Courses */}
+            <Link
+              href="/courses"
+              className={`group relative text-[11px] font-bold tracking-[0.2em] uppercase py-2 transition-all duration-300 ${textColor}`}
+            >
+              Courses
+              <span
+                className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`}
+              />
             </Link>
 
             {/* Sound Healing dropdown */}
@@ -134,7 +176,9 @@ export default function Navbar() {
                 {/* Active underline */}
                 <span
                   className={`absolute bottom-0 left-0 w-full h-[1px] transform transition-transform duration-500 ease-out ${underlineBg} ${
-                    isSoundHealingActive ? "scale-x-100" : "scale-x-0 origin-right group-hover:scale-x-100 group-hover:origin-left"
+                    isSoundHealingActive
+                      ? "scale-x-100"
+                      : "scale-x-0 origin-right group-hover:scale-x-100 group-hover:origin-left"
                   }`}
                 />
               </button>
@@ -163,7 +207,9 @@ export default function Navbar() {
                         >
                           <div
                             className={`mt-0.5 flex-shrink-0 transition-colors duration-200 ${
-                              isActive ? "text-[#bc6746]" : "text-[#bc6746]/50 group-hover:text-[#bc6746]"
+                              isActive
+                                ? "text-[#bc6746]"
+                                : "text-[#bc6746]/50 group-hover:text-[#bc6746]"
                             }`}
                           >
                             {link.icon}
@@ -193,7 +239,9 @@ export default function Navbar() {
               className={`group relative text-[11px] font-bold tracking-[0.2em] uppercase py-2 transition-all duration-300 ${textColor}`}
             >
               Retreats
-              <span className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`} />
+              <span
+                className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`}
+              />
             </Link>
 
             {/* From Within */}
@@ -202,7 +250,9 @@ export default function Navbar() {
               className={`group relative text-[11px] font-bold tracking-[0.2em] uppercase py-2 transition-all duration-300 ${textColor}`}
             >
               From Within
-              <span className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`} />
+              <span
+                className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`}
+              />
             </Link>
 
             {/* Contact */}
@@ -211,7 +261,9 @@ export default function Navbar() {
               className={`group relative text-[11px] font-bold tracking-[0.2em] uppercase py-2 transition-all duration-300 ${textColor}`}
             >
               Contact
-              <span className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`} />
+              <span
+                className={`absolute bottom-0 left-0 w-full h-[1px] transform scale-x-0 origin-right transition-transform duration-500 ease-out group-hover:scale-x-100 group-hover:origin-left ${underlineBg}`}
+              />
             </Link>
           </div>
 
@@ -271,8 +323,18 @@ export default function Navbar() {
                     : "border-white/30 bg-white/5"
                 }`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  />
                 </svg>
               </div>
             </Link>
@@ -303,9 +365,15 @@ export default function Navbar() {
               }`}
               aria-label="Toggle Menu"
             >
-              <div className={`w-4 h-[1.5px] mb-1 transition-all duration-300 ${scrolled ? "bg-[#4a3b32]" : "bg-white"} ${isOpen ? "rotate-45 translate-y-[5.5px]" : ""}`} />
-              <div className={`w-4 h-[1.5px] mb-1 transition-all duration-300 ${scrolled ? "bg-[#4a3b32]" : "bg-white"} ${isOpen ? "opacity-0" : ""}`} />
-              <div className={`w-4 h-[1.5px] transition-all duration-300 ${scrolled ? "bg-[#4a3b32]" : "bg-white"} ${isOpen ? "-rotate-45 -translate-y-[5.5px]" : ""}`} />
+              <div
+                className={`w-4 h-[1.5px] mb-1 transition-all duration-300 ${scrolled ? "bg-[#4a3b32]" : "bg-white"} ${isOpen ? "rotate-45 translate-y-[5.5px]" : ""}`}
+              />
+              <div
+                className={`w-4 h-[1.5px] mb-1 transition-all duration-300 ${scrolled ? "bg-[#4a3b32]" : "bg-white"} ${isOpen ? "opacity-0" : ""}`}
+              />
+              <div
+                className={`w-4 h-[1.5px] transition-all duration-300 ${scrolled ? "bg-[#4a3b32]" : "bg-white"} ${isOpen ? "-rotate-45 -translate-y-[5.5px]" : ""}`}
+              />
             </button>
           </div>
         </div>
@@ -357,8 +425,12 @@ export default function Navbar() {
                     >
                       <div className="text-white/70">{link.icon}</div>
                       <div className="text-left">
-                        <p className="text-[11px] font-bold tracking-[0.15em] uppercase">{link.name}</p>
-                        <p className="text-[10px] text-white/50 font-light">{link.desc}</p>
+                        <p className="text-[11px] font-bold tracking-[0.15em] uppercase">
+                          {link.name}
+                        </p>
+                        <p className="text-[10px] text-white/50 font-light">
+                          {link.desc}
+                        </p>
                       </div>
                     </Link>
                   ))}
@@ -395,8 +467,18 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
             className="absolute top-8 right-6 w-10 h-10 border border-white/30 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

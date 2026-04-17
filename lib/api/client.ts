@@ -194,3 +194,67 @@ export const yogaService = {
     update: (data: any) => api.patch('/yoga/payment-settings', data),
   }
 };
+
+export const courseService = {
+  list: () => api.get('/admin/courses'),
+  get: (id: string) => api.get(`/admin/courses/${id}`),
+  create: (data: any) => api.post('/admin/courses', data),
+  update: (id: string, data: any) => api.put(`/admin/courses/${id}`, data),
+  delete: (id: string) => api.delete(`/admin/courses/${id}`),
+  sections: {
+    create: (data: any) => api.post('/admin/courses/sections', data),
+    update: (id: string, data: any) => api.put(`/admin/courses/sections/${id}`, data),
+    delete: (id: string) => api.delete(`/admin/courses/sections/${id}`),
+  },
+  lessons: {
+    create: (data: any) => api.post('/admin/courses/lessons', data),
+    update: (id: string, data: any) => api.put(`/admin/courses/lessons/${id}`, data),
+    delete: (id: string) => api.delete(`/admin/courses/lessons/${id}`),
+  }
+};
+
+export const videoService = {
+  /**
+   * 1. Get a secure upload session (placeholder + signature)
+   */
+  createSession: (title: string) => api.post('/admin/videos/upload-session', { title }),
+
+  /**
+   * 2. Perform direct upload to Bunny Stream via TUS
+   * Bypasses Vercel's 4.5MB limit.
+   */
+  uploadFile: async (file: File, sessionData: any, onProgress?: (pct: number) => void) => {
+    // Import TUS dynamically to avoid SSR issues
+    const tus = (await import('tus-js-client')).Upload;
+
+    return new Promise((resolve, reject) => {
+      const upload = new tus(file, {
+        endpoint: 'https://video.bunnycdn.com/tusupload',
+        retryDelays: [0, 3000, 5000, 10000, 20000],
+        headers: {
+          AuthorizationSignature: sessionData.signature,
+          AuthorizationExpire: sessionData.expiration.toString(),
+          VideoId: sessionData.videoId,
+          LibraryId: sessionData.libraryId.toString(),
+        },
+        metadata: {
+          filetype: file.type,
+          title: sessionData.title,
+        },
+        onError: (error) => {
+          console.error('[TUS_UPLOAD_ERROR]:', error);
+          reject(error);
+        },
+        onProgress: (bytesUploaded, bytesTotal) => {
+          const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
+          if (onProgress) onProgress(percentage);
+        },
+        onSuccess: () => {
+          resolve({ success: true, videoId: sessionData.videoId });
+        },
+      });
+
+      upload.start();
+    });
+  }
+};
