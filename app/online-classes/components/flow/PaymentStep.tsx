@@ -11,7 +11,7 @@ import { useRazorpay } from "@/lib/hooks/useRazorpay";
 interface PaymentStepProps {
   offering: Offering;
   session: Session | null;
-  bookingMode: "single" | "package";
+  bookingMode: "single" | "package" | "monthly" | null;
   packageSize: number;
   totalAmount: number;
   userData: UserData;

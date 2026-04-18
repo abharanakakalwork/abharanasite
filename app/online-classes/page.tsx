@@ -6,6 +6,7 @@ import { ChevronDown, Loader2 } from "lucide-react";
 import BookingFlow from "./components/BookingFlow";
 import OnlineClassCard from "./components/OnlineClassCard";
 import TrustSection from "./components/TrustSection";
+import MonthlyFetcher from "./components/MonthlyFetcher";
 import { yogaService } from "@/lib/api/client";
 import { Offering } from "./components/flow/types";
 import { toast } from "react-toastify";
@@ -44,6 +45,7 @@ export default function OnlineClassesPage() {
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(
     null,
   );
+  const [bookingMode, setBookingMode] = useState<"single" | "monthly" | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [sortBy, setSortBy] = useState<SortOption>("Recommended");
@@ -106,8 +108,9 @@ export default function OnlineClassesPage() {
     return list;
   }, [offerings, activeCategory, sortBy]);
 
-  const handleBook = (offering: Offering) => {
+  const handleBook = (offering: Offering, mode: "single" | "monthly" | null = null) => {
     setSelectedOffering(offering);
+    setBookingMode(mode);
     setIsBookingOpen(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -255,14 +258,16 @@ export default function OnlineClassesPage() {
                   </motion.div>
                 )}
 
-                {/* Trust section */}
-                {/* {!loading && displayed.length > 0 && (
                   <div className="mt-24">
                     <TrustSection />
                   </div>
-                )} */}
               </div>
             </section>
+
+            {/* Monthly Memberships Section */}
+            {!loading && (
+              <MonthlyFetcher onBook={handleBook} />
+            )}
           </motion.div>
         ) : (
           <motion.div
@@ -276,6 +281,7 @@ export default function OnlineClassesPage() {
             <div className="max-w-6xl mx-auto">
               <BookingFlow
                 initialOffering={selectedOffering}
+                initialMode={bookingMode}
                 onClose={closeBooking}
               />
             </div>

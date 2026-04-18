@@ -78,6 +78,70 @@ export async function sendBookingEmail(to: string, data: {
 }
 
 /**
+ * Sends a premium reminder email for monthly membership renewal.
+ */
+export async function sendMembershipReminderEmail(to: string, data: {
+    userName: string;
+    offeringTitle: string;
+    expiryDate: string;
+}, scheduledAt?: Date) {
+    if (!process.env.RESEND_API_KEY || !resend) return;
+
+    const { userName, offeringTitle, expiryDate } = data;
+
+    const html = `
+        <div style="font-family: 'Georgia', serif; max-width: 600px; margin: auto; padding: 40px; border: 1px solid #e8d5c5; border-radius: 32px; background-color: #fffdfa; color: #4a3b32;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #bc6746; font-size: 28px; margin: 0; font-style: italic;">Abharana Kakal</h1>
+                <p style="text-transform: uppercase; letter-spacing: 4px; font-size: 10px; color: #a55a3d; margin-top: 5px;">Sanctuary of Wellness</p>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #f1e4da; margin-bottom: 30px;" />
+            
+            <p style="font-size: 18px; line-height: 1.6;">Namaste <strong>${userName}</strong>,</p>
+            
+            <p style="font-size: 16px; line-height: 1.6; font-style: italic;">"The soul's journey is infinite, but the momentum of practice is a gift we must nurture."</p>
+            
+            <p style="font-size: 16px; line-height: 1.6;">Your 30-day membership for <strong>${offeringTitle}</strong> is coming to a close on <strong>${expiryDate}</strong>. We hope this month has brought a sense of peace and balance to your life.</p>
+            
+            <div style="background: #fdfcf6; padding: 30px; border-radius: 20px; text-align: center; margin: 30px 0; border: 1px dashed #bc6746;">
+                <h4 style="margin: 0 0 10px 0; color: #bc6746; text-transform: uppercase; letter-spacing: 2px;">Keep The Light Burning</h4>
+                <p style="margin: 5px 0; font-size: 14px;">Renew your monthly membership now to ensure uninterrupted access to your live sessions and the community.</p>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://abharanakakal.com'}/online-classes" 
+                   style="display: inline-block; margin-top: 20px; padding: 14px 30px; background-color: #bc6746; color: white; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                   Renew Membership
+                </a>
+            </div>
+
+            <p style="font-size: 14px; line-height: 1.6; color: #7a6a62;">If you have any questions or need to adjust your practice format, our team is here to guide you.</p>
+            
+            <p style="margin-top: 40px; font-size: 16px;">In Light and Grace,</p>
+            <p style="margin-top: 5px; font-weight: bold; color: #bc6746;">Abharana Kakal Sanctuary</p>
+
+            <hr style="border: 0; border-top: 1px solid #f1e4da; margin-top: 40px; margin-bottom: 20px;" />
+            
+            <p style="font-size: 10px; text-align: center; color: #a55a3d; text-transform: uppercase; letter-spacing: 1px;">
+                You are receiving this because you held an active membership in our sanctuary.
+            </p>
+        </div>
+    `;
+
+    try {
+        await resend.emails.send({
+            from: 'Abharana Kakal <onboarding@resend.dev>',
+            to: [to],
+            subject: `Renew Your Sanctuary Journey: ${offeringTitle}`,
+            html,
+            scheduledAt: scheduledAt?.toISOString(),
+        } as any);
+        console.log(`[EMAIL_SUCCESS] Scheduled reminder for ${to} at ${scheduledAt?.toISOString()}`);
+    } catch (err) {
+        console.error('[EMAIL_ERROR] Failed to schedule reminder email:', err);
+    }
+}
+
+
+/**
  * Sends a password reset email to the student.
  */
 export async function sendResetPasswordEmail(to: string, resetLink: string) {

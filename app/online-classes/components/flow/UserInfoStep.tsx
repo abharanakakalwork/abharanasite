@@ -34,7 +34,7 @@ interface UserInfoStepProps {
   userData: UserData;
   setUserData: (data: UserData) => void;
   offering: Offering;
-  session: Session;
+  session?: Session | null;
   date: Date;
   gstPercent: number;
 }
@@ -47,7 +47,8 @@ export default function UserInfoStep({
   date,
   gstPercent,
 }: UserInfoStepProps) {
-  const basePrice = offering.single_price;
+  const isMonthly = !session;
+  const basePrice = isMonthly ? (offering.monthly_price || 0) : offering.single_price;
   const gstAmount = Number((basePrice * (gstPercent / 100)).toFixed(2));
   const totalAmount = Number((basePrice + gstAmount).toFixed(2));
 
@@ -100,11 +101,11 @@ export default function UserInfoStep({
             <div className="flex items-center gap-1.5 text-[#7a6a62]">
               <Clock size={10} />
               <span className="text-[9px] font-black uppercase tracking-[0.2em]">
-                Time
+                {isMonthly ? "Validity" : "Time"}
               </span>
             </div>
             <p className="text-[13px] font-medium text-[#2d2420]">
-              {formatTime12h(session.start_time)}
+              {isMonthly ? "30 Days Access" : formatTime12h(session.start_time)}
             </p>
           </div>
         </div>

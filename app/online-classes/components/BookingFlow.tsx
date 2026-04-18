@@ -12,10 +12,12 @@ import UserInfoStep from "./flow/UserInfoStep";
 import PaymentStep from "./flow/PaymentStep";
 import { useYogaRealtime } from "@/lib/hooks/useYogaRealtime";
 import { Offering, Session, UserData } from "./flow/types";
-import { cn, formatDateLocal } from "@/lib/utils";
+import { cn, formatDateLocal, calculateExpiryDate, calculateReminderDate } from "@/lib/utils";
+import BookingTypeStep from "./flow/BookingTypeStep";
 
 interface BookingFlowProps {
   initialOffering?: Offering | null;
+  initialMode?: "single" | "monthly" | null;
   onClose?: () => void;
 }
 
@@ -76,6 +78,7 @@ function Stepper({ currentStep }: { currentStep: number }) {
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function BookingFlow({
   initialOffering,
+  initialMode = "single",
   onClose,
 }: BookingFlowProps) {
   const [mounted, setMounted] = useState(false);
@@ -88,8 +91,11 @@ export default function BookingFlow({
   const [exceptions, setExceptions] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gstPercent, setGstPercent] = useState(18);
+  const [bookingMode, setBookingMode] = useState<"single" | "monthly" | null>(initialOffering ? initialMode : null);
 
-  const [currentStep, setCurrentStep] = useState(initialOffering ? 2 : 1);
+  const [currentStep, setCurrentStep] = useState(
+    initialOffering ? (initialMode === null ? 1 : initialMode === "monthly" ? 2 : 2) : 1
+  );
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(
     initialOffering || null,
   );
@@ -138,16 +144,19 @@ export default function BookingFlow({
     setIsSubmitting(true);
     try {
       const GST_RATE = 0.18;
-      const base_amount = selectedOffering?.single_price || 0;
+      const base_amount = bookingMode === "monthly" 
+        ? (selectedOffering?.monthly_price || 0)
+        : (selectedOffering?.single_price || 0);
+        
       const gst_amount = Number((base_amount * GST_RATE).toFixed(2));
       const total_amount = Number((base_amount + gst_amount).toFixed(2));
 
       const payload = {
-        reference_id: selectedSession?.id,
+        reference_id: bookingMode === "monthly" ? selectedOffering?.id : selectedSession?.id,
         user_name: userData.name,
         user_email: userData.email,
         user_phone: userData.phone,
-        booking_type: "yoga",
+        booking_type: bookingMode === "monthly" ? "yoga_monthly" : "yoga",
         total_amount,
         amount: base_amount,
         gst_amount,
@@ -155,7 +164,8 @@ export default function BookingFlow({
         payment_screenshot_url: verifiedPaymentData.screenshotUrl,
         metadata: {
           offering_title: selectedOffering?.title,
-          session_date: selectedSession?.session_date,
+          session_date: bookingMode === "monthly" ? "Monthly Membership" : selectedSession?.session_date,
+          booking_mode: bookingMode
         },
       };
 
@@ -217,8 +227,31 @@ export default function BookingFlow({
                 <Stepper currentStep={currentStep} />
 
                 <AnimatePresence mode="wait">
+                  {/* ───────── STEP 1 — Select Type ───────── */}
+                  {currentStep === 1 && selectedOffering && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <BookingTypeStep 
+                        offering={selectedOffering} 
+                        onSelect={(mode) => {
+                          setBookingMode(mode);
+                          if (mode === "monthly") {
+                            setSelectedDate(new Date());
+                            setSelectedSession(null);
+                          }
+                          setCurrentStep(2);
+                        }} 
+                      />
+                    </motion.div>
+                  )}
+
                   {/* ───────── STEP 2 — Schedule ───────── */}
-                  {currentStep === 2 && (
+                  {currentStep === 2 && bookingMode === "single" && (
                     <motion.div
                       key="step2"
                       initial={{ opacity: 0, x: 20 }}
@@ -255,6 +288,52 @@ export default function BookingFlow({
                       />
                     </motion.div>
                   )}
+                  {/* ───────── STEP 2 (Monthly) — Period Confirmation ───────── */}
+                  {currentStep === 2 && bookingMode === "monthly" && (
+                    <motion.div
+                      key="step2-monthly"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-5xl font-serif font-bold text-[#bc6746] leading-tight mb-2">
+                          Membership Period
+                        </h2>
+                        <p className="text-[15px] text-[#7a6a62]">Your 30-day journey starts today.</p>
+                      </div>
+
+                      <div className="max-w-2xl mx-auto p-12 bg-[#fdfcf6] rounded-[40px] border border-[#f1e4da] shadow-inner text-center">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-10">
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-black uppercase text-[#bc6746] tracking-[0.4em]">Activation</p>
+                            <p className="text-3xl font-serif text-[#2d2420]">{formatDateLocal(new Date())}</p>
+                          </div>
+                          <div className="space-y-2 md:border-l border-[#f1e4da] md:pl-12">
+                            <p className="text-[11px] font-black uppercase text-[#bc6746] tracking-[0.4em]">Validity</p>
+                            <p className="text-3xl font-serif text-[#2d2420]">{formatDateLocal(calculateExpiryDate())}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="pt-8 border-t border-[#f1e4da] space-y-4">
+                           <div className="flex items-center justify-between text-[14px]">
+                              <span className="text-[#7a6a62]">Plan Access:</span>
+                              <span className="font-bold text-[#2d2420]">{selectedOffering?.title}</span>
+                           </div>
+                           <div className="flex items-center justify-between text-[14px]">
+                              <span className="text-[#7a6a62]">Monthly Rate:</span>
+                              <span className="font-bold text-[#2d2420]">₹{selectedOffering?.monthly_price}</span>
+                           </div>
+                        </div>
+
+                        <p className="mt-10 text-[12px] text-[#a55a3d]/70 italic leading-relaxed">
+                          By continuing, you start an uninterrupted 30-day practice period. 
+                          A renewal reminder will be shared 3 days before expiry.
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
 
                   {/* ───────── STEP 3 — Personal Details ───────── */}
                   {currentStep === 3 && (
@@ -275,10 +354,18 @@ export default function BookingFlow({
                           <strong className="text-[#2d2420]">
                             {selectedOffering?.title}
                           </strong>{" "}
-                          on{" "}
-                          <strong className="text-[#2d2420]">
-                            {selectedDate ? formatDateLocal(selectedDate) : ""}
-                          </strong>
+                          {bookingMode === "monthly" ? (
+                            <strong className="text-[#2d2420]">
+                              (Monthly Membership)
+                            </strong>
+                          ) : (
+                            <>
+                              on{" "}
+                              <strong className="text-[#2d2420]">
+                                {selectedDate ? formatDateLocal(selectedDate) : ""}
+                              </strong>
+                            </>
+                          )}
                           .
                         </p>
                       </div>
@@ -288,7 +375,7 @@ export default function BookingFlow({
                           userData={userData}
                           setUserData={setUserData}
                           offering={selectedOffering!}
-                          session={selectedSession!}
+                          session={selectedSession}
                           date={selectedDate!}
                           gstPercent={gstPercent}
                         />
@@ -303,8 +390,10 @@ export default function BookingFlow({
                 {/* Back */}
                 <button
                   onClick={() => {
-                    if (currentStep === 2) {
-                      initialOffering ? onClose?.() : setCurrentStep(1);
+                    if (currentStep === 1) {
+                      onClose?.();
+                    } else if (currentStep === 2) {
+                      bookingMode === initialMode && initialMode !== null ? onClose?.() : setCurrentStep(1);
                     } else if (currentStep === 3) {
                       setCurrentStep(2);
                     }
@@ -312,8 +401,15 @@ export default function BookingFlow({
                   className="flex items-center gap-2 text-[13px] font-medium text-[#7a6a62] hover:text-[#2d2420] transition-colors"
                 >
                   <ChevronLeft size={16} />
-                  {currentStep === 2 ? "Return to Classes" : "Back to Schedule"}
+                  {currentStep === 1 ? (
+                    "Cancel"
+                  ) : currentStep === 2 ? (
+                    "Change Format"
+                  ) : (
+                    "Back to Schedule"
+                  )}
                 </button>
+
 
                 {/* Price (center) — base on step 2, GST-inclusive on step 3 */}
                 {selectedOffering && (
@@ -324,11 +420,11 @@ export default function BookingFlow({
                       {currentStep === 3
                         ? Number(
                             (
-                              selectedOffering.single_price *
+                              (bookingMode === "monthly" ? selectedOffering.monthly_price! : selectedOffering.single_price) *
                               (1 + gstPercent / 100)
                             ).toFixed(0),
                           )
-                        : selectedOffering.single_price}
+                        : (bookingMode === "monthly" ? selectedOffering.monthly_price : selectedOffering.single_price)}
                     </span>
                   </p>
                 )}
@@ -336,19 +432,20 @@ export default function BookingFlow({
                 {/* Continue / Proceed */}
                 {currentStep === 2 && (
                   <button
-                    disabled={!canProceedToStep3}
+                    disabled={bookingMode === "single" && !canProceedToStep3}
                     onClick={() => setCurrentStep(3)}
                     className={cn(
-                      "flex items-center gap-2 px-7 py-3 rounded-xl text-[13px] font-semibold transition-all",
-                      canProceedToStep3
-                        ? "bg-[#bc6746] text-white hover:bg-[#4a6250]"
+                      "flex items-center gap-2 px-10 py-3.5 rounded-xl text-[13px] font-semibold transition-all shadow-sm",
+                      (bookingMode === "monthly" || (bookingMode === "single" && canProceedToStep3))
+                        ? "bg-[#bc6746] text-white hover:bg-[#a55a3d] hover:shadow-lg hover:shadow-[#bc6746]/20"
                         : "bg-[#e8ddd5] text-[#4a3b32]/40 cursor-not-allowed",
                     )}
                   >
-                    Continue to Booking
+                    Continue to Details
                     <ChevronRight size={16} />
                   </button>
                 )}
+
 
                 {currentStep === 3 && (
                   <button
@@ -398,11 +495,11 @@ export default function BookingFlow({
             <PaymentStep
               offering={selectedOffering!}
               session={selectedSession}
-              bookingMode="single"
+              bookingMode={bookingMode}
               packageSize={1}
               totalAmount={Number(
                 (
-                  selectedOffering!.single_price *
+                  (bookingMode === "monthly" ? selectedOffering!.monthly_price! : selectedOffering!.single_price) *
                   (1 + gstPercent / 100)
                 ).toFixed(2),
               )}

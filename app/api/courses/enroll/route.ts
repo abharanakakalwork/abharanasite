@@ -39,6 +39,15 @@ export async function POST(req: NextRequest) {
       console.warn('RAZORPAY_KEY_SECRET missing. Skipping verification (dev mode?).');
     }
 
+    // 2.5 Fetch Course Details for metadata
+    const { data: course } = await supabaseAdmin
+      .from('courses')
+      .select('title')
+      .eq('id', courseId)
+      .single();
+
+    const courseTitle = course?.title || 'Unknown Course';
+
     // 3. Create Enrollment record
     const { data: enrollment, error } = await supabaseAdmin
       .from('course_enrollments')
@@ -55,6 +64,32 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error('[Enrollment Error]:', error);
       throw error;
+    }
+
+    // 4. Mirror in Unified Bookings Table for Admin Dashboard
+    const { error: bookingError } = await supabaseAdmin
+      .from('bookings')
+      .insert({
+        booking_type: 'course',
+        reference_id: courseId,
+        user_name: student.name,
+        user_email: student.email,
+        amount: amount,
+        total_amount: amount, // Assuming inclusive or handle separately if needed
+        payment_reference: paymentId,
+        payment_status: 'paid',
+        booking_status: 'confirmed',
+        metadata: {
+          item_title: courseTitle,
+          course_id: courseId,
+          order_id: orderId,
+          type_label: 'Course Enrollment'
+        }
+      });
+
+    if (bookingError) {
+      console.error('[Booking Mirror Error]:', bookingError);
+      // We don't throw here to avoid failing enrollment if mirror fails, but ideal for logs
     }
 
     return NextResponse.json({ 

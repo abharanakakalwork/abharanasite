@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { withAuth } from '@/lib/with-auth';
+import { calculateExpiryDate, calculateReminderDate, formatDateLocal } from '@/lib/utils';
+import { sendBookingEmail, sendMembershipReminderEmail } from '@/lib/api/email';
 
 /**
  * PATCH /api/bookings/[id]
@@ -37,7 +39,46 @@ async function patchHandler(req: NextRequest, { params }: { params: { id: string
 
     if (res.error) throw res.error;
 
-    return NextResponse.json({ success: true, data: res.data });
+    const updatedBooking = res.data;
+
+    // Trigger Notifications & Scheduling on Confirmation
+    if (booking_status === 'confirmed' && updatedBooking) {
+        // 1. Send Immediate Confirmation Email
+        // For yoga_monthly, session info is virtual
+        sendBookingEmail(updatedBooking.user_email, {
+            userName: updatedBooking.user_name,
+            offeringTitle: updatedBooking.metadata?.item_title || 'Yoga Practice',
+            sessionDate: updatedBooking.booking_type === 'yoga_monthly' ? '30 Days Membership' : (updatedBooking.metadata?.session_date || ''),
+            startTime: '',
+            totalAmount: updatedBooking.total_amount,
+            status: 'confirmed',
+            type: 'receipt',
+            referenceCode: updatedBooking.payment_reference
+        }).catch(err => console.error('[CONFIRM_EMAIL_FAIL]:', err));
+
+        // 2. If Monthly, set expires_at and schedule reminder
+        if (updatedBooking.booking_type === 'yoga_monthly') {
+            const expires_at = calculateExpiryDate().toISOString();
+            const expiryObj = new Date(expires_at);
+            const reminderDate = calculateReminderDate(expiryObj);
+
+            // Update DB with expires_at
+            await supabaseAdmin
+                .from('bookings')
+                .update({ expires_at })
+                .eq('id', id);
+
+            // Schedule future reminder
+            sendMembershipReminderEmail(updatedBooking.user_email, {
+                userName: updatedBooking.user_name,
+                offeringTitle: updatedBooking.metadata?.item_title || 'Yoga Practice',
+                expiryDate: formatDateLocal(expiryObj)
+            }, reminderDate).catch(err => console.error('[REMINDER_SCHED_FAIL]:', err));
+        }
+    }
+
+    return NextResponse.json({ success: true, data: updatedBooking });
+
   } catch (err: any) {
     console.error('[Booking Update Error]:', err);
     return NextResponse.json({ error: 'Failed to update booking', details: err.message }, { status: 500 });

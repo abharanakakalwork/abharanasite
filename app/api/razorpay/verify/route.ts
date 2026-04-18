@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { calculateExpiryDate, calculateReminderDate, formatDateLocal } from '@/lib/utils';
+import { sendMembershipReminderEmail } from '@/lib/api/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,6 +44,11 @@ export async function POST(req: NextRequest) {
             metadata 
         } = bookingData;
 
+        let expires_at = null;
+        if (booking_type === 'yoga_monthly') {
+            expires_at = calculateExpiryDate().toISOString();
+        }
+
         const { data, error } = await supabaseAdmin
             .from('bookings')
             .insert({
@@ -56,6 +63,7 @@ export async function POST(req: NextRequest) {
                 payment_reference: razorpay_payment_id,
                 payment_status: 'paid',
                 booking_status: 'confirmed',
+                expires_at,
                 metadata: {
                     ...metadata,
                     razorpay_order_id,
@@ -84,10 +92,27 @@ export async function POST(req: NextRequest) {
                 .eq('id', reference_id)
                 .single();
             
-            await supabaseAdmin
-                .from('yoga_sessions')
-                .update({ booked_count: (session?.booked_count || 0) + 1 })
-                .eq('id', reference_id);
+            if (session) {
+                await supabaseAdmin
+                    .from('yoga_sessions')
+                    .update({ booked_count: (session?.booked_count || 0) + 1 })
+                    .eq('id', reference_id);
+            }
+        }
+
+        // Handle Monthly Reminder Scheduling
+        if (booking_type === 'yoga_monthly' && expires_at) {
+            const expiryObj = new Date(expires_at);
+            const reminderDate = calculateReminderDate(expiryObj);
+            
+            // Schedule the reminder via Resend
+            sendMembershipReminderEmail(user_email, {
+                userName: user_name,
+                offeringTitle: (metadata?.item_title) || 'Yoga Practice',
+                expiryDate: formatDateLocal(expiryObj)
+            }, reminderDate).catch(err => {
+                console.error('[REMINDER_SCHEDULING_FAILED]:', err);
+            });
         }
 
         return NextResponse.json({ success: true, booking: data });

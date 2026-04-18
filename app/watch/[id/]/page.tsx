@@ -130,7 +130,7 @@ export default function WatchPage() {
     currentLesson?.playback?.libraryId &&
     currentLesson?.playback?.token &&
     currentLesson?.playback?.expires
-      ? `https://iframe.mediadelivery.net/embed/${currentLesson.playback.libraryId}/${currentLesson.video_url}?token=${currentLesson.playback.token}&expires=${currentLesson.playback.expires}&autoplay=true&loop=false&muted=false&preload=true&responsive=true`
+      ? `https://iframe.mediadelivery.net/embed/${currentLesson.playback.libraryId}/${currentLesson.video_url}?token=${currentLesson.playback.token}&expires=${currentLesson.playback.expires}&autoplay=false&loop=false&muted=false&preload=true&responsive=true`
       : "";
 
   return (

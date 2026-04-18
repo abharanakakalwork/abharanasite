@@ -12,6 +12,7 @@ import {
   Clock,
   CreditCard,
   Filter,
+  Gem,
   Loader2,
   Mail,
   MessageCircle,
@@ -42,7 +43,7 @@ interface BookingMetadata {
 
 interface Booking {
   id: string;
-  booking_type: 'yoga' | 'upcoming' | 'retreat';
+  booking_type: 'yoga' | 'upcoming' | 'retreat' | 'course';
   reference_id: string;
   user_name: string;
   user_email: string;
@@ -85,6 +86,7 @@ export default function BookingsAdmin() {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBookings, setTotalBookings] = useState(0);
+  const [summary, setSummary] = useState<any>(null);
 
   const [previousBookings, setPreviousBookings] = useState<Booking[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -121,6 +123,9 @@ export default function BookingsAdmin() {
       if (res.data.pagination) {
           setTotalPages(res.data.pagination.totalPages || 1);
           setTotalBookings(res.data.pagination.total || 0);
+      }
+      if (res.data.summary) {
+          setSummary(res.data.summary);
       }
     } catch {
       toast.error('Failed to load bookings');
@@ -197,13 +202,14 @@ export default function BookingsAdmin() {
   const stats = useMemo(() => {
     return {
       total: totalBookings,
-      pending: bookings.filter((booking) => booking.payment_status === 'submitted' || booking.payment_status === 'pending').length,
+      pending: summary?.pending ?? bookings.filter((booking) => booking.payment_status === 'submitted' || booking.payment_status === 'pending').length,
       paid: bookings.filter((booking) => booking.payment_status === 'verified' || booking.payment_status === 'paid').length,
-      yoga: bookings.filter((booking) => booking.booking_type === 'yoga').length,
-      upcoming: bookings.filter((booking) => booking.booking_type === 'upcoming').length,
-      retreat: bookings.filter((booking) => booking.booking_type === 'retreat').length,
+      yoga: summary?.yoga ?? bookings.filter((booking) => booking.booking_type === 'yoga').length,
+      upcoming: summary?.upcoming ?? bookings.filter((booking) => booking.booking_type === 'upcoming').length,
+      retreat: summary?.retreat ?? bookings.filter((booking) => booking.booking_type === 'retreat').length,
+      course: summary?.course ?? bookings.filter((booking) => booking.booking_type === 'course').length,
     };
-  }, [bookings, totalBookings]);
+  }, [bookings, totalBookings, summary]);
 
   return (
     <div className="min-h-screen bg-[#faf8f6] p-8 pb-24">
@@ -226,8 +232,8 @@ export default function BookingsAdmin() {
 
       <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: 'Pending Payment', value: stats.pending, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: 'Yoga Bookings', value: stats.yoga, icon: Tag, color: 'text-[#bc6746]', bg: 'bg-[#bc6746]/10' },
+          { label: 'Courses', value: stats.course, icon: Gem, color: 'text-indigo-600', bg: 'bg-indigo-50' },
           { label: 'Events / Retreats', value: stats.upcoming + stats.retreat, icon: Calendar, color: 'text-stone-600', bg: 'bg-stone-100' },
           { label: 'Total Volume', value: formatCurrencyLabel(bookings.reduce((acc, curr) => acc + curr.total_amount, 0)), icon: CreditCard, color: 'text-emerald-600', bg: 'bg-emerald-50' },
         ].map((stat, index) => (
@@ -268,6 +274,7 @@ export default function BookingsAdmin() {
               >
                 <option value="all">All Types</option>
                 <option value="yoga">Online Yoga</option>
+                <option value="course">Courses</option>
                 <option value="upcoming">Events</option>
                 <option value="retreat">Retreats</option>
               </select>
@@ -313,9 +320,11 @@ export default function BookingsAdmin() {
                   'rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-widest',
                   item.booking_type === 'yoga'
                     ? 'border-amber-200 bg-amber-100 text-amber-700'
-                    : item.booking_type === 'upcoming'
-                      ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
-                      : 'border-purple-200 bg-purple-100 text-purple-700'
+                    : item.booking_type === 'course'
+                      ? 'border-indigo-200 bg-indigo-100 text-indigo-700'
+                      : item.booking_type === 'upcoming'
+                        ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                        : 'border-purple-200 bg-purple-100 text-purple-700'
                 )}
               >
                 {item.booking_type}

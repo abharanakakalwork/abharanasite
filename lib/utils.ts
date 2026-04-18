@@ -44,3 +44,22 @@ export const validatePhone = (phone: string) => {
   const cleanPhone = phone.replace(/\s/g, '');
   return /^\+?[0-9]{10,12}$/.test(cleanPhone);
 };
+
+/**
+ * Calculates the expiration date (exactly 30 days from now).
+ */
+export function calculateExpiryDate(startDate: Date = new Date()): Date {
+  const expiry = new Date(startDate);
+  expiry.setDate(expiry.getDate() + 30);
+  return expiry;
+}
+
+/**
+ * Calculates the reminder date (default 3 days before expiration).
+ */
+export function calculateReminderDate(expiryDate: Date, daysBefore: number = 3): Date {
+  const reminder = new Date(expiryDate);
+  reminder.setDate(reminder.getDate() - daysBefore);
+  return reminder;
+}
+
