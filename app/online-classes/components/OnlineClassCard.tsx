@@ -41,6 +41,9 @@ export default function OnlineClassCard({
     )?.[1] ||
     "https://abharanakakal.b-cdn.net/assets/exp-yoga.png";
 
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const isLongDescription = offering.description?.length > 100;
+
   return (
     <motion.div
       layout
@@ -93,9 +96,22 @@ export default function OnlineClassCard({
         </div>
 
         {/* Description */}
-        <p className="text-[#7a6a62] text-[13px] leading-relaxed line-clamp-2">
-          {offering.description}
-        </p>
+        <div className="relative">
+          <p className={`text-[#7a6a62] text-[13px] leading-relaxed transition-all duration-300 ${!isExpanded ? "line-clamp-2" : ""}`}>
+            {offering.description}
+          </p>
+          {isLongDescription && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(!isExpanded);
+              }}
+              className="text-[#bc6746] text-[11px] font-bold mt-1.5 hover:underline flex items-center gap-1"
+            >
+              {isExpanded ? "See Less" : "See More"}
+            </button>
+          )}
+        </div>
 
         {/* Divider */}
         <div className="border-t border-[#ede3dc]" />

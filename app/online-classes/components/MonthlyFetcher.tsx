@@ -15,6 +15,9 @@ interface MonthlyMembershipCardProps {
 }
 
 function MonthlyMembershipCard({ offering, onBook, index }: MonthlyMembershipCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isLongDescription = offering.description?.length > 120;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -54,9 +57,19 @@ function MonthlyMembershipCard({ offering, onBook, index }: MonthlyMembershipCar
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#bc6746]/60">Unlimited Access</p>
         </div>
 
-        <p className="text-[13px] text-[#7a6a62] font-serif leading-relaxed italic mb-8 flex-1">
-          {offering.description}
-        </p>
+        <div className="relative flex-1 mb-8">
+          <p className={`text-[13px] text-[#7a6a62] font-serif leading-relaxed italic transition-all duration-300 ${!isExpanded ? "line-clamp-3" : ""}`}>
+            {offering.description}
+          </p>
+          {isLongDescription && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-[#bc6746] text-[10px] font-bold mt-2 uppercase tracking-widest hover:underline"
+            >
+              {isExpanded ? "See Less" : "See More Description"}
+            </button>
+          )}
+        </div>
 
         {/* Benefits */}
         <div className="space-y-3 mb-10">
