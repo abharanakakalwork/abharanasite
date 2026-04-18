@@ -90,9 +90,16 @@ export default function OnlineClassCard({
           <h3 className="text-[17px] font-semibold text-[#2d2420] leading-snug group-hover:text-[#bc6746] transition-colors duration-300">
             {offering.title}
           </h3>
-          <span className="text-[#bc6746] font-semibold text-[15px] whitespace-nowrap">
-            ₹{offering.single_price}
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="text-[#bc6746] font-semibold text-[15px] whitespace-nowrap">
+              ₹{offering.single_price} <span className="text-[10px] opacity-70 font-normal">/ session</span>
+            </span>
+            {offering.monthly_price && offering.monthly_price > 0 && (
+              <span className="text-[11px] text-[#7a6a62] font-medium whitespace-nowrap">
+                ₹{offering.monthly_price}/mo
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Description */}
