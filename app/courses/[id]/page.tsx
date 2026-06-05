@@ -77,7 +77,7 @@ export default function CourseDetailPage() {
 
       // 2. Launch Razorpay
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SdHRDjRRmMGAT2",
+        key: orderRes.data.key,
         amount: Math.round(course.price * 100),
         currency: "INR",
         name: "Abharana Kakal",

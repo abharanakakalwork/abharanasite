@@ -23,7 +23,9 @@ export async function POST(req: NextRequest) {
         success: true,
         order_id: order.id,
         amount: order.amount,
-        currency: order.currency
+        currency: order.currency,
+        // Return the key that created this order so checkout always matches it.
+        key: process.env.RAZORPAY_KEY_ID
     });
   } catch (error: any) {
     console.error('[Razorpay Order Error]:', error);

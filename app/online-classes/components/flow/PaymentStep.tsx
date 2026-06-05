@@ -53,11 +53,11 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
       if (!orderRes.data.success) throw new Error("Order creation failed");
 
-      const { order_id } = orderRes.data;
+      const { order_id, key } = orderRes.data;
 
       // 2. Open Razorpay Checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_SdHRDjRRmMGAT2",
+        key,
         amount: Math.round(totalAmount * 100),
         currency: "INR",
         name: "Abharana Kakal",
